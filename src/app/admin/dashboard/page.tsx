@@ -86,6 +86,7 @@ interface Cohort {
   is_active: boolean;
   delivery_type: string;
   meeting_link?: string;
+  whatsapp_group_link?: string;
   created_at: string;
 }
 
@@ -230,6 +231,7 @@ const ADMIN_TABS: AdminTab[] = ["cohorts", "enrollments", "waitlist", "promocode
       is_active: true,
       delivery_type: "both",
       meeting_link: "",
+      whatsapp_group_link: "",
     });
 
     const [promoForm, setPromoForm] = useState({
@@ -311,6 +313,7 @@ const ADMIN_TABS: AdminTab[] = ["cohorts", "enrollments", "waitlist", "promocode
         is_active: true,
         delivery_type: "both",
         meeting_link: "",
+        whatsapp_group_link: "",
       });
       setEditingCohort(null);
       setShowCohortModal(true);
@@ -329,6 +332,7 @@ const ADMIN_TABS: AdminTab[] = ["cohorts", "enrollments", "waitlist", "promocode
         is_active: cohort.is_active,
         delivery_type: cohort.delivery_type || "both",
         meeting_link: cohort.meeting_link || "",
+        whatsapp_group_link: cohort.whatsapp_group_link || "",
       });
       setEditingCohort(cohort);
       setShowCohortModal(true);
@@ -350,6 +354,7 @@ const ADMIN_TABS: AdminTab[] = ["cohorts", "enrollments", "waitlist", "promocode
         is_active: cohortForm.is_active,
         delivery_type: cohortForm.delivery_type,
         meeting_link: cohortForm.meeting_link || null,
+        whatsapp_group_link: cohortForm.whatsapp_group_link || null,
       };
 
     if (editingCohort) {
@@ -2936,6 +2941,15 @@ const ADMIN_TABS: AdminTab[] = ["cohorts", "enrollments", "waitlist", "promocode
                       value={cohortForm.meeting_link}
                       onChange={(e) => setCohortForm({ ...cohortForm, meeting_link: e.target.value })}
                       placeholder="https://meet.google.com/..."
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-white/80 text-xs">WhatsApp Group Link (Optional)</Label>
+                    <Input
+                      className="bg-[#1a1a1a] border-white/10 h-10 sm:h-11"
+                      value={cohortForm.whatsapp_group_link}
+                      onChange={(e) => setCohortForm({ ...cohortForm, whatsapp_group_link: e.target.value })}
+                      placeholder="https://chat.whatsapp.com/..."
                     />
                   </div>
                   <div className="space-y-2">

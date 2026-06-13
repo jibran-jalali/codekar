@@ -70,6 +70,7 @@ export async function createCohort(cohortData: {
   is_active: boolean;
   delivery_type: string;
   meeting_link?: string;
+  whatsapp_group_link?: string;
 }) {
   const { data, error } = await supabase
     .from("cohorts")
@@ -95,6 +96,7 @@ export async function updateCohort(id: string, cohortData: {
   is_active?: boolean;
   delivery_type?: string;
   meeting_link?: string;
+  whatsapp_group_link?: string;
 }) {
   const { data, error } = await supabase
     .from("cohorts")

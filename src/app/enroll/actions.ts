@@ -27,6 +27,42 @@ export async function enrollUser(formData: {
   cohort_time?: string;
 }) {
     const isFreeRegistration = formData.price_paid <= 0;
+    let cohortDetails: {
+      name?: string;
+      dates?: string;
+      time?: string;
+      meeting_link?: string | null;
+      whatsapp_group_link?: string | null;
+    } | null = null;
+
+    const { data: cohortDetailsWithLinks, error: cohortDetailsError } = formData.cohort_id
+      ? await supabase
+          .from("cohorts")
+          .select("name, dates, time, meeting_link, whatsapp_group_link")
+          .eq("id", formData.cohort_id)
+          .maybeSingle()
+      : { data: null, error: null };
+
+    if (cohortDetailsError) {
+      console.error("Failed to load cohort details for enrollment email:", cohortDetailsError);
+
+      const { data: fallbackCohortDetails, error: fallbackCohortDetailsError } = formData.cohort_id
+        ? await supabase
+            .from("cohorts")
+            .select("name, dates, time, meeting_link")
+            .eq("id", formData.cohort_id)
+            .maybeSingle()
+        : { data: null, error: null };
+
+      if (fallbackCohortDetailsError) {
+        console.error("Failed to load fallback cohort details for enrollment email:", fallbackCohortDetailsError);
+      }
+
+      cohortDetails = fallbackCohortDetails;
+    } else {
+      cohortDetails = cohortDetailsWithLinks;
+    }
+
     const enrollmentPayload = {
       name: formData.name,
       age: formData.age,
@@ -81,11 +117,13 @@ export async function enrollUser(formData: {
       const emailResult = await sendEnrollmentEmail({
         email: formData.email,
         name: formData.name,
-        cohortName: formData.cohort_name || "Workshop",
-        cohortDates: formData.cohort_dates || "",
-        cohortTime: formData.cohort_time || "",
+        cohortName: cohortDetails?.name || formData.cohort_name || "Workshop",
+        cohortDates: cohortDetails?.dates || formData.cohort_dates || "",
+        cohortTime: cohortDetails?.time || formData.cohort_time || "",
         joiningType: formData.joining_type || "online",
         pricePaid: formData.price_paid,
+        meetingLink: cohortDetails?.meeting_link || undefined,
+        whatsappGroupLink: cohortDetails?.whatsapp_group_link || undefined,
       });
 
       if (emailResult.error) {
@@ -116,7 +154,7 @@ export async function enrollUser(formData: {
           studentName: formData.name,
           studentEmail: formData.email,
           studentPhone: formData.phone,
-          cohortName: formData.cohort_name || "Workshop",
+          cohortName: cohortDetails?.name || formData.cohort_name || "Workshop",
           pricePaid: formData.price_paid,
           joiningType: formData.joining_type || "online",
         });

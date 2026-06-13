@@ -20,6 +20,8 @@ interface EnrollmentEmailProps {
   cohortTime: string;
   joiningType: string;
   pricePaid: number;
+  meetingLink?: string;
+  whatsappGroupLink?: string;
 }
 
 export const EnrollmentConfirmationEmail = ({
@@ -29,8 +31,11 @@ export const EnrollmentConfirmationEmail = ({
   cohortTime,
   joiningType,
   pricePaid,
+  meetingLink,
+  whatsappGroupLink,
 }: EnrollmentEmailProps) => {
   const isFreeRegistration = pricePaid <= 0;
+  const hasFreeWorkshopLinks = Boolean(meetingLink || whatsappGroupLink);
 
   return (
   <Html>
@@ -101,8 +106,27 @@ export const EnrollmentConfirmationEmail = ({
             <Section style={confirmedBox}>
               <Heading style={{...h3, color: '#22c55e'}}>Registration Confirmed</Heading>
               <Text style={smallText}>
-                You are confirmed for this free workshop. Keep this email for your records and watch for any meeting or location details from the CodeKar team.
+                You are confirmed for this free workshop. Use the links below to join the live session and the student WhatsApp group.
               </Text>
+              {hasFreeWorkshopLinks && (
+                <Section style={linkButtonWrap}>
+                  {meetingLink && (
+                    <Link href={meetingLink} style={primaryLinkButton}>
+                      Join Webinar
+                    </Link>
+                  )}
+                  {whatsappGroupLink && (
+                    <Link href={whatsappGroupLink} style={secondaryLinkButton}>
+                      Join WhatsApp Group
+                    </Link>
+                  )}
+                </Section>
+              )}
+              {!hasFreeWorkshopLinks && (
+                <Text style={smallText}>
+                  The CodeKar team will share the joining links before the workshop starts.
+                </Text>
+              )}
             </Section>
           ) : (
             <>
@@ -309,6 +333,34 @@ const confirmedBox = {
   borderRadius: "16px",
   border: "1px solid rgba(34, 197, 94, 0.16)",
   borderLeft: "4px solid #22c55e",
+};
+
+const linkButtonWrap = {
+  marginTop: "20px",
+};
+
+const primaryLinkButton = {
+  backgroundColor: "#22c55e",
+  color: "#000000",
+  padding: "12px 18px",
+  borderRadius: "10px",
+  fontSize: "14px",
+  fontWeight: "bold",
+  textDecoration: "none",
+  display: "inline-block",
+  margin: "0 8px 10px 0",
+};
+
+const secondaryLinkButton = {
+  backgroundColor: "#ffffff",
+  color: "#000000",
+  padding: "12px 18px",
+  borderRadius: "10px",
+  fontSize: "14px",
+  fontWeight: "bold",
+  textDecoration: "none",
+  display: "inline-block",
+  margin: "0 8px 10px 0",
 };
 
 const smallText = {

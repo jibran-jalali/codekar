@@ -94,6 +94,8 @@ export async function sendEnrollmentEmail(data: {
   cohortTime: string;
   joiningType: string;
   pricePaid: number;
+  meetingLink?: string;
+  whatsappGroupLink?: string;
 }) {
   const isFreeRegistration = data.pricePaid <= 0;
 
