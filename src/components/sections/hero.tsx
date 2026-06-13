@@ -9,7 +9,7 @@ import { motion } from 'framer-motion';
 /**
  * HeroSection Component
  * 
- * Clones the hero section of the CodeKar Karachi website.
+ * Clones the hero section of the CodeKar online workshop website.
  * Features:
  * - "Workshops Open" status badge
  * - Large headline with specific line breaks
@@ -47,8 +47,8 @@ const HeroSection: React.FC = () => {
                     transition={{ delay: 0.3, duration: 0.6 }}
                     className="text-[28px] xs:text-[32px] sm:text-[44px] md:text-[56px] lg:text-[72px] font-bold leading-[1.1] sm:leading-[1.1] text-white tracking-tight"
                   >
-                  Stop watching tutorials.<br className="hidden sm:block" />
-                  Start building apps.
+                  Build a real AI customer support chatbot in 2 days.<br className="hidden sm:block" />
+                  No coding required.
                 </motion.h1>
 
                 {/* Description */}
@@ -58,7 +58,7 @@ const HeroSection: React.FC = () => {
                   transition={{ delay: 0.4, duration: 0.6 }}
                   className="text-base sm:text-lg md:text-xl text-[#d1d5db] max-w-lg leading-relaxed"
                 >
-                  A 2-day live workshop for founders, students, and creators. Build real AI applications without manual coding. Go from idea to launch this weekend.
+                  A 2-day live online workshop for complete beginners. Walk away with a working AI chatbot you built yourself — and a path to your first paying freelance client.
                 </motion.p>
 
 
@@ -93,7 +93,7 @@ const HeroSection: React.FC = () => {
               {/* Main Interactive Workshop Image */}
               <div className="relative overflow-hidden rounded-[24px] md:rounded-[40px] shadow-2xl group">
                 <Image 
-                  alt="CodeKar Workshop in Karachi" 
+                  alt="CodeKar live online workshop" 
                   width={800} 
                   height={700}
                   priority

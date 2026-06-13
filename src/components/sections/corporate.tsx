@@ -8,7 +8,7 @@ import { motion } from 'framer-motion';
  * CorporateWorkshopSection component
  * 
  * Design Instructions:
- * Clone the corporate workshop CTA section featuring an H2 for team upskilling in Karachi, 
+ * Clone the corporate workshop CTA section featuring an H2 for team upskilling across Pakistan, 
  * a brief paragraph on customization, and a "Get Custom Proposal" white button 
  * styled as a horizontal banner on black background.
  */
@@ -32,7 +32,7 @@ const CorporateWorkshopSection = () => {
               transition={{ delay: 0.2, duration: 0.6 }}
               className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight leading-[1.2] text-white"
             >
-              Corporate workshops for teams in Karachi
+              Online chatbot workshops for teams across Pakistan
             </motion.h2>
             <motion.p 
               initial={{ opacity: 0, x: -20 }}
@@ -41,7 +41,7 @@ const CorporateWorkshopSection = () => {
               transition={{ delay: 0.3, duration: 0.6 }}
               className="mt-3 md:mt-4 text-[#d1d5db] text-base sm:text-lg lg:text-xl leading-relaxed"
             >
-              Want to upskill your team with AI-powered coding? We offer customized 2-day workshops for companies in Karachi. Perfect for teams starting their coding journey or exploring AI tools.
+              Want your team to build practical AI customer support chatbots? We offer customized 2-day online workshops for teams across Pakistan. No coding background required.
             </motion.p>
           </div>
           

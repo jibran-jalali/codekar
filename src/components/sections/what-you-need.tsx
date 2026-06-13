@@ -26,7 +26,7 @@ const WhatYouNeed = () => {
             <p 
               className="text-sm sm:text-base md:text-xl text-white/80 max-w-3xl mx-auto leading-relaxed px-4"
             >
-              We&apos;ve got everything set up at our Karachi venue. Just bring these two things to get the most out of your 2-day coding journey.
+              Join from wherever you are. You just need a laptop, stable internet, and the focus to build your chatbot during the live online sessions.
             </p>
           </motion.div>
 
@@ -85,13 +85,12 @@ const WhatYouNeed = () => {
                 <h3 
                   className="text-xl sm:text-2xl lg:text-3xl font-bold mb-3 sm:mb-4 text-white transition-colors duration-300 group-hover:text-[#a3e635] leading-tight"
                 >
-                  Note-Taking Tools
+                  Stable Internet
                 </h3>
                 <p 
                   className="text-white/80 leading-relaxed text-sm sm:text-base md:text-lg transition-colors duration-300"
                 >
-                  Bring a notebook and pen, or use your favorite note-taking app. We&apos;ll share lots 
-                  of tips, shortcuts, and resources throughout the 2-day workshop that you&apos;ll want to remember!
+                  Use a stable internet connection and join the video call from a quiet place. Keep a notebook or notes app open for client scripts, chatbot prompts, and setup steps.
                 </p>
               </div>
               <div className="absolute inset-0 bg-gradient-to-br from-white/[0.03] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />

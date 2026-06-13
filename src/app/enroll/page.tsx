@@ -72,18 +72,15 @@ export default function EnrollPage() {
     }
   };
 
-  const hasInPerson = cohorts.some(c => c.delivery_type === "inperson" || c.delivery_type === "both");
-  const hasOnline = cohorts.some(c => c.delivery_type === "online" || c.delivery_type === "both");
-
   return (
     <main className="min-h-screen bg-black text-white py-16 px-4">
       <div className="container max-w-4xl mx-auto space-y-12">
         <div className="text-center space-y-4">
           <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-white via-white to-gray-400 bg-clip-text text-transparent">
-            CodeKar — Karachi Workshops
+            CodeKar Online Chatbot Workshop
           </h1>
           <p className="text-white/60 text-lg md:text-xl max-w-2xl mx-auto">
-            Join our 2-day beginner-friendly workshop in Karachi. Learn to code with AI and build real apps for personal projects, school, or your career.
+            Join our 2-day beginner-friendly online workshop. Build a real AI customer support chatbot and learn how to show it to potential freelance clients.
           </p>
         </div>
 
@@ -95,7 +92,7 @@ export default function EnrollPage() {
           <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-4 py-2">
             <MapPin className="w-4 h-4 text-white/60" />
             <span className="text-sm">
-              {hasInPerson && hasOnline ? "In-person & Online" : hasOnline ? "Online" : "In-person · Karachi"}
+              Live Online
             </span>
           </div>
           <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-4 py-2">
@@ -115,15 +112,9 @@ export default function EnrollPage() {
                 const isFull = spotsAvailable <= 0;
                 const hasSale = cohort.sale_price && cohort.sale_price < cohort.original_price;
                 
-                const deliveryText = cohort.delivery_type === "both" 
-                  ? "In-person & Online" 
-                  : cohort.delivery_type === "online" 
-                    ? "Online" 
-                    : "In-person";
+                const deliveryText = "Online";
 
-                const buttonText = cohort.delivery_type === "both"
-                  ? "Register Now"
-                  : `Register (${deliveryText})`;
+                const buttonText = `Register (${deliveryText})`;
 
                 return (
                   <Card key={cohort.id} className={`bg-[#1a1a1a] border-white/10 rounded-2xl p-6 md:p-8 ${isFull ? 'opacity-80' : ''}`}>

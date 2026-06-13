@@ -8,27 +8,28 @@ const FAQSection = () => {
   const faqs = [
     {
       question: "Who's this workshop for?",
-      answer: "Complete beginners who want to learn coding! Students, professionals looking to upskill, or anyone with a project idea. No coding background required—just bring your laptop and enthusiasm."
+      answer: "Complete beginners in Pakistan who want a practical online skill. If you're non-technical and want to build chatbots for local businesses or freelance clients, this is for you. No coding background required - just bring your laptop and focus."
     },
     {
       question: "Do I need to know how to code?",
-      answer: "Not at all! We start from scratch. You'll learn to code using AI tools as your assistant. Our 2-day hands-on approach gets you building immediately, no boring theory."
+      answer: "Not at all. We start from scratch and use AI tools to help you build. The goal is simple: finish with a working chatbot, not sit through boring theory."
     },
     {
       question: "What will I actually build?",
-      answer: "A real, working app or website that you can use, show off, or add to your portfolio. Perfect for personal projects, school assignments, or to showcase when applying for jobs."
+      answer: "A real, working AI-powered customer support chatbot for a business - the exact kind of project local businesses like shops, salons, clinics, and online sellers will pay you to build. You'll walk away with a deployed chatbot you can show to potential freelance clients as proof of what you can do."
     },
     {
       question: "Is it online or in-person?",
-      answer: "We host 2-day in-person workshops in Karachi, Pakistan. Face-to-face learning with hands-on support from instructors throughout the entire workshop."
+      answer: "It's fully online. You'll join live video-call sessions for 2 days, build alongside the instructor, and get hands-on support when you get stuck."
     },
+    // TODO: Confirm the exact chatbot-building stack before publishing specific tool names here.
     {
       question: "What tools are we using?",
-      answer: "Modern, beginner-friendly tools: v0 + Cursor for AI-assisted coding, Next.js + Supabase for building real apps. We'll help you set everything up—don't worry about the technical setup."
+      answer: "Beginner-friendly AI and chatbot-building tools. We'll help you set everything up step by step, so you can focus on building and deploying the chatbot instead of fighting with technical setup."
     },
     {
       question: "What if I get stuck?",
-      answer: "Our instructors are there with you throughout the 2 days! We provide hands-on support, debug together, and make sure everyone succeeds. Plus, you'll join our community for continued support after the workshop."
+      answer: "Our instructors are with you throughout the 2 days. We debug together, answer questions live, and help you keep moving until your chatbot works."
     }
   ];
 

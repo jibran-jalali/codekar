@@ -23,7 +23,7 @@ const FinalCTA = () => {
               transition={{ delay: 0.2, duration: 0.6 }}
               className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-white leading-tight"
             >
-              Start building your first AI app today.
+              Start building your first AI chatbot today.
             </motion.h2>
             
             {/* Subtext */}
@@ -34,7 +34,17 @@ const FinalCTA = () => {
               transition={{ delay: 0.3, duration: 0.6 }}
               className="text-base sm:text-lg md:text-xl text-white/80 max-w-2xl leading-relaxed mx-auto"
             >
-              Don&apos;t get left behind by AI. Join the next cohort and go from zero to launch in 48 hours. Spots are strictly limited.
+              Join the next live online cohort and go from zero to a working customer support chatbot in 48 hours. Spots are strictly limited.
+            </motion.p>
+
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.35, duration: 0.6 }}
+              className="inline-flex max-w-2xl items-center justify-center rounded-full border border-white/20 bg-white/10 px-5 py-3 text-sm sm:text-base font-medium text-white/90 backdrop-blur-sm"
+            >
+              Full refund if you don&apos;t walk away with a working, deployed chatbot.
             </motion.p>
             
             {/* CTA Button */}

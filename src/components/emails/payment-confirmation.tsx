@@ -81,7 +81,7 @@ export function PaymentConfirmationEmail({
         <p style={{ color: '#ccc', lineHeight: '1.6', fontSize: '15px' }}>
           {meetingLink 
             ? "You can use the link above to join the workshop at the scheduled time. We recommend joining 5 minutes early to test your connection."
-            : "We will send you the final agenda and joining instructions (location for in-person or meeting link for online) 24 hours before the workshop starts."
+            : "We will send you the final agenda and live online joining instructions 24 hours before the workshop starts."
           }
         </p>
         <p style={{ color: '#ccc', lineHeight: '1.6', fontSize: '15px', marginTop: '16px' }}>

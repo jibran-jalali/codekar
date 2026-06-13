@@ -17,10 +17,10 @@ const FooterCTA: React.FC = () => {
       <section className="py-24 md:py-32 flex flex-col items-center text-center">
         <div className="container px-6 max-w-7xl mx-auto flex flex-col items-center">
           <h2 className="text-[36px] md:text-[48px] font-bold tracking-tight mb-6 leading-[1.2]">
-            Ready to start coding in Karachi?
+            Ready to build your first AI chatbot online?
           </h2>
           <p className="text-[18px] text-[#d1d5db] mb-10 max-w-[768px] leading-[1.6]">
-            Join our next 2-day workshop. Limited to 20 students per batch for personalized attention. Spots fill up fast!
+            Join our next 2-day live online workshop. Limited seats per batch for hands-on support. Spots fill up fast!
           </p>
           
           <Link href="/enroll" className="inline-block">
