@@ -8,30 +8,51 @@ import { AdminNotificationEmail } from '@/components/emails/admin-notification';
 import { MeetingInvitationEmail } from '@/components/emails/meeting-invitation';
 import { LocationInvitationEmail } from '@/components/emails/location-invitation';
 
-const transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
-  port: 465,
-  secure: true, // use SSL
-  pool: true,
-  maxConnections: 5,
-  maxMessages: 100,
-  auth: {
-    user: process.env.GMAIL_USER,
-    pass: process.env.GMAIL_APP_PASSWORD,
-  },
-});
+type EmailAttachment = {
+  filename: string;
+  content: string | Buffer;
+};
+
+function getMailCredentials() {
+  const user = process.env.GMAIL_USER?.trim();
+  const pass = process.env.GMAIL_APP_PASSWORD?.trim();
+
+  if (!user || !pass) {
+    throw new Error("Email is not configured. Set GMAIL_USER and GMAIL_APP_PASSWORD.");
+  }
+
+  return { user, pass };
+}
+
+function createTransporter() {
+  const { user, pass } = getMailCredentials();
+
+  return nodemailer.createTransport({
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true, // use SSL
+    pool: true,
+    maxConnections: 5,
+    maxMessages: 100,
+    auth: {
+      user,
+      pass,
+    },
+  });
+}
 
 export async function sendEmail({ to, subject, react, attachments }: { 
   to: string; 
   subject: string; 
   react: React.ReactElement;
-  attachments?: any[];
+  attachments?: EmailAttachment[];
 }) {
   try {
+    const { user } = getMailCredentials();
     const html = await render(react);
     
-    const info = await transporter.sendMail({
-      from: `"CodeKar" <${process.env.GMAIL_USER}>`,
+    const info = await createTransporter().sendMail({
+      from: `"CodeKar" <${user}>`,
       to,
       subject,
       html,
@@ -103,14 +124,17 @@ export async function sendAdminNotificationEmail(data: {
   joiningType: string;
 }) {
   const results = [];
-  for (const email of data.adminEmails) {
+  const adminEmails = [...new Set(data.adminEmails.map(email => email.trim()).filter(Boolean))];
+
+  for (const email of adminEmails) {
     const result = await sendEmail({
       to: email,
       subject: `New Registration: ${data.studentName} - Pending Payment Verification`,
       react: React.createElement(AdminNotificationEmail, data),
     });
-    return results;
+    results.push({ email, ...result });
   }
+
   return results;
 }
 

@@ -57,16 +57,24 @@ export async function enrollUser(formData: {
     }
 
     // Send admin notification emails
-    const { data: adminSettings } = await supabase
+    const { data: adminSettings, error: adminSettingsError } = await supabase
       .from("admin_settings")
       .select("value")
       .eq("key", "notification_emails")
-      .single();
+      .maybeSingle();
+
+    if (adminSettingsError) {
+      console.error("Failed to load admin notification emails:", adminSettingsError);
+    }
 
     if (adminSettings?.value) {
-      const adminEmails = adminSettings.value.split(',').filter((e: string) => e.trim());
+      const adminEmails = adminSettings.value
+        .split(',')
+        .map((email: string) => email.trim())
+        .filter(Boolean);
+
       if (adminEmails.length > 0) {
-        await sendAdminNotificationEmail({
+        const adminEmailResults = await sendAdminNotificationEmail({
           adminEmails,
           studentName: formData.name,
           studentEmail: formData.email,
@@ -75,6 +83,11 @@ export async function enrollUser(formData: {
           pricePaid: formData.price_paid,
           joiningType: formData.joining_type || "online",
         });
+
+        const failedAdminEmails = adminEmailResults.filter(result => result.error);
+        if (failedAdminEmails.length > 0) {
+          console.error("Failed to send admin notification emails:", failedAdminEmails);
+        }
       }
     }
 

@@ -297,7 +297,7 @@ export async function markEnrollmentPaid(id: string) {
 }
 
 export async function toggleAttendance(id: string, attended: boolean, completion_date?: string) {
-  const updateData: any = { attended };
+  const updateData: { attended: boolean; completion_date?: string } = { attended };
   if (completion_date) {
     updateData.completion_date = completion_date;
   }
@@ -394,7 +394,7 @@ export async function getNotificationEmails() {
     .from("admin_settings")
     .select("value")
     .eq("key", "notification_emails")
-    .single();
+    .maybeSingle();
 
   if (error) {
     return { success: false, error: error.message, data: "" };
@@ -405,8 +405,14 @@ export async function getNotificationEmails() {
 export async function updateNotificationEmails(emails: string) {
   const { error } = await supabase
     .from("admin_settings")
-    .update({ value: emails, updated_at: new Date().toISOString() })
-    .eq("key", "notification_emails");
+    .upsert(
+      {
+        key: "notification_emails",
+        value: emails,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: "key" }
+    );
 
   if (error) {
     return { success: false, error: error.message };
