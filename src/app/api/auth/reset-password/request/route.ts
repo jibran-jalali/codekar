@@ -1,16 +1,11 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
 import nodemailer from "nodemailer";
 import React from "react";
 import { render } from "@react-email/render";
 import { PasswordResetEmail } from "@/components/emails/password-reset";
+import { supabaseAdmin as supabase } from "@/lib/supabase";
 
 const ADMIN_EMAIL = "k245620@nu.edu.pk";
-
-const supabase = createClient(
-  process.env.SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
 
 const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
