@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
-import { Bot, CalendarDays, MessageCircle, Minimize2, Send, Sparkles, X } from "lucide-react";
+import { Bot, Send, Sparkles, X } from "lucide-react";
 
 type ChatMessage = {
   role: "user" | "assistant";
@@ -24,11 +25,14 @@ type Cohort = {
 const starterMessages: ChatMessage[] = [
   {
     role: "assistant",
-    content: "Hi, I am CodeKar AI. I can help with cohorts, booking, pricing, the refund guarantee, and what you will build.",
+    content: "Hi! I'm CodeKar AI 👋\nAsk me anything about the workshop, pricing, or how to enroll.",
   },
 ];
 
 const quickActions = ["Show cohorts", "Help me book", "What will I build?", "Refund"];
+
+const codeKarLogoUrl =
+  "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/render/image/public/document-uploads/Codekar-1766840680469.png?width=400&height=400&resize=contain";
 
 function formatPrice(cohort: Cohort) {
   const price = cohort.sale_price || cohort.original_price;
@@ -75,7 +79,7 @@ export default function CodeKarAIChat() {
         ...current,
         {
           role: "assistant",
-          content: data.reply || "I can help with cohorts, booking, pricing, and what you will build.",
+          content: data.reply || "I'm here to help! Ask me about the workshop, pricing, or enrollment.",
         },
       ]);
     } catch {
@@ -113,49 +117,46 @@ export default function CodeKarAIChat() {
       <button
         type="button"
         onClick={openChat}
-        className={`fixed bottom-5 right-5 z-[80] flex items-center gap-3 rounded-full border border-white/15 bg-white px-4 py-3 text-black shadow-[0_20px_60px_rgba(0,0,0,0.45)] transition-all hover:scale-[1.03] active:scale-95 sm:bottom-6 sm:right-6 ${open ? "pointer-events-none translate-y-3 opacity-0" : "opacity-100"}`}
+        className={`fixed bottom-5 right-5 z-[80] flex h-14 w-14 items-center justify-center rounded-full border border-[#a3e635]/30 bg-[#0b0b0b] text-white shadow-[0_20px_60px_rgba(0,0,0,0.45)] transition-all hover:scale-[1.03] hover:border-[#a3e635]/60 active:scale-95 sm:bottom-6 sm:right-6 sm:h-auto sm:w-auto sm:justify-start sm:gap-3 sm:px-4 sm:py-3 ${open ? "pointer-events-none translate-y-3 opacity-0" : "opacity-100"}`}
         aria-label="Open CodeKar AI chat"
       >
-        <span className="flex h-10 w-10 items-center justify-center rounded-full bg-black text-white">
-          <Bot className="h-5 w-5" />
+        <span className="relative flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-white sm:h-10 sm:w-10">
+          <Image src={codeKarLogoUrl} alt="" width={40} height={40} className="h-full w-full object-contain p-1" />
+          <span className="absolute bottom-0 right-0 flex h-4 w-4 items-center justify-center rounded-full bg-[#a3e635] text-black ring-2 ring-[#0b0b0b]">
+            <Bot className="h-2.5 w-2.5" />
+          </span>
         </span>
         <span className="hidden text-left sm:block">
           <span className="block text-sm font-bold leading-tight">CodeKar AI</span>
-          <span className="block text-xs text-black/60">Ask before booking</span>
+          <span className="block text-xs text-[#a3e635]">Official workshop assistant</span>
         </span>
-        <MessageCircle className="h-4 w-4 sm:hidden" />
       </button>
 
       {open && (
         <div className="fixed inset-x-4 bottom-4 z-[90] sm:inset-auto sm:bottom-6 sm:right-6 sm:w-[380px]">
-          <div className="max-h-[calc(100vh-2rem)] overflow-hidden rounded-[24px] border border-white/15 bg-[#0b0b0b]/95 text-white shadow-[0_30px_100px_rgba(0,0,0,0.7)] backdrop-blur-xl">
-            <div className="relative border-b border-white/10 bg-gradient-to-br from-white/[0.1] to-white/[0.035] p-4">
+          <div className="max-h-[calc(100vh-2rem)] overflow-hidden rounded-[24px] border border-[#a3e635]/20 bg-[#0b0b0b]/95 text-white shadow-[0_30px_100px_rgba(0,0,0,0.7)] backdrop-blur-xl">
+            <div className="relative border-b border-white/10 bg-gradient-to-br from-[#a3e635]/15 via-white/[0.06] to-white/[0.025] p-4">
               <div className="absolute right-6 top-0 h-20 w-20 rounded-full bg-[#a3e635]/10 blur-3xl" />
               <div className="relative flex items-start justify-between gap-4">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white text-black shadow-lg">
-                    <Sparkles className="h-5 w-5" />
+                  <div className="relative flex h-12 w-12 items-center justify-center overflow-hidden rounded-2xl bg-white shadow-lg">
+                    <Image src={codeKarLogoUrl} alt="CodeKar" width={48} height={48} className="h-full w-full object-contain p-1.5" />
+                    <span className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-[#a3e635] text-black ring-2 ring-[#0b0b0b]">
+                      <Sparkles className="h-3 w-3" />
+                    </span>
                   </div>
                   <div>
+                    <div className="mb-1 inline-flex items-center rounded-full border border-[#a3e635]/25 bg-[#a3e635]/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-[#a3e635]">
+                      Official CodeKar
+                    </div>
                     <h2 className="text-base font-bold leading-tight">CodeKar AI</h2>
-                    <p className="text-xs text-white/55">Ask, book, or check cohorts</p>
+                    <p className="text-xs text-white/55">Workshop guidance, cohorts, and booking help</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-1">
+                <div className="flex items-center">
                   <button
                     type="button"
                     onClick={() => setOpen(false)}
-                    className="flex h-9 w-9 items-center justify-center rounded-full text-white/60 transition hover:bg-white/10 hover:text-white"
-                    aria-label="Minimize CodeKar AI chat"
-                  >
-                    <Minimize2 className="h-4 w-4" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setMessages(starterMessages);
-                      setOpen(false);
-                    }}
                     className="flex h-9 w-9 items-center justify-center rounded-full text-white/60 transition hover:bg-white/10 hover:text-white"
                     aria-label="Close CodeKar AI chat"
                   >
@@ -169,10 +170,10 @@ export default function CodeKarAIChat() {
               {messages.map((message, index) => (
                 <div key={`${message.role}-${index}`} className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}>
                   <div
-                    className={`max-w-[88%] whitespace-pre-wrap rounded-2xl px-4 py-3 text-sm leading-relaxed ${
+                    className={`max-w-[88%] whitespace-pre-wrap rounded-2xl px-4 py-3 text-sm leading-relaxed shadow-sm ${
                       message.role === "user"
-                        ? "bg-white text-black"
-                        : "border border-white/10 bg-white/[0.06] text-white/85"
+                        ? "bg-gradient-to-br from-[#a3e635] to-[#65a30d] text-black font-semibold rounded-br-sm"
+                        : "border border-[#a3e635]/15 bg-white/[0.06] text-white/90 backdrop-blur-md rounded-bl-sm"
                     }`}
                   >
                     {message.content}
@@ -182,7 +183,7 @@ export default function CodeKarAIChat() {
 
               {visibleCohorts.length > 0 && (
                 <div className="space-y-2 rounded-2xl border border-white/10 bg-black/35 p-3">
-                  <p className="px-1 text-[11px] font-bold uppercase tracking-[0.16em] text-white/40">Active cohorts</p>
+                  <p className="px-1 text-[11px] font-bold uppercase tracking-[0.16em] text-[#a3e635]">Active CodeKar cohorts</p>
                   {visibleCohorts.map((cohort) => (
                     <Link
                       key={cohort.id}
@@ -205,8 +206,10 @@ export default function CodeKarAIChat() {
 
               {loading && (
                 <div className="flex justify-start">
-                  <div className="rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-sm text-white/60">
-                    CodeKar AI is thinking...
+                  <div className="flex items-center gap-1.5 rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-4 text-sm backdrop-blur-md rounded-bl-sm">
+                    <div className="h-1.5 w-1.5 animate-bounce rounded-full bg-white/60 [animation-delay:-0.3s]"></div>
+                    <div className="h-1.5 w-1.5 animate-bounce rounded-full bg-white/60 [animation-delay:-0.15s]"></div>
+                    <div className="h-1.5 w-1.5 animate-bounce rounded-full bg-white/60"></div>
                   </div>
                 </div>
               )}
@@ -226,23 +229,14 @@ export default function CodeKarAIChat() {
                 ))}
               </div>
 
-              <div className="mb-3 grid grid-cols-2 gap-2">
-                <Link href="/enroll" className="flex items-center justify-center gap-2 rounded-full bg-white px-3 py-2.5 text-xs font-bold text-black transition hover:bg-gray-100">
-                  <CalendarDays className="h-3.5 w-3.5" />
-                  Open Enrollment
-                </Link>
-                <a href="#faq" className="flex items-center justify-center gap-2 rounded-full border border-white/10 bg-white/[0.06] px-3 py-2.5 text-xs font-bold text-white/80 transition hover:bg-white/[0.1]">
-                  <MessageCircle className="h-3.5 w-3.5" />
-                  FAQs
-                </a>
-              </div>
+
 
               <form
                 onSubmit={(event) => {
                   event.preventDefault();
                   sendMessage(input);
                 }}
-                className="flex items-end gap-2 rounded-2xl border border-white/10 bg-white/[0.06] p-2"
+                className="flex items-end gap-2 rounded-2xl border border-white/10 bg-[#121212]/80 shadow-inner p-2 backdrop-blur-lg focus-within:border-white/30 focus-within:bg-[#1a1a1a]/90 transition-all"
               >
                 <textarea
                   value={input}
@@ -260,7 +254,7 @@ export default function CodeKarAIChat() {
                 <button
                   type="submit"
                   disabled={loading || !input.trim()}
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#a3e635] text-black transition hover:scale-105 disabled:cursor-not-allowed disabled:opacity-40"
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#a3e635] text-black shadow-lg transition-transform hover:scale-105 disabled:cursor-not-allowed disabled:opacity-40"
                   aria-label="Send message"
                 >
                   <Send className="h-4 w-4" />

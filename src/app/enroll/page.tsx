@@ -110,15 +110,18 @@ export default function EnrollPage() {
               {cohorts.map((cohort) => {
                 const spotsAvailable = cohort.total_spots - cohort.spots_taken;
                 const isFull = spotsAvailable <= 0;
-                const hasSale = cohort.sale_price && cohort.sale_price < cohort.original_price;
+                const displayPrice = cohort.sale_price ?? cohort.original_price;
+                const isFreeWorkshop = displayPrice <= 0;
+                const hasSale = cohort.sale_price !== null && cohort.sale_price < cohort.original_price;
                 
                 const deliveryText = "Online";
 
-                const buttonText = `Register (${deliveryText})`;
+                const buttonText = isFreeWorkshop ? "Register Free" : `Register (${deliveryText})`;
 
                 return (
-                  <Card key={cohort.id} className={`bg-[#1a1a1a] border-white/10 rounded-2xl p-6 md:p-8 ${isFull ? 'opacity-80' : ''}`}>
-                    <div className="space-y-6">
+                  <Card key={cohort.id} className={`group relative bg-[#0a0a0a] border border-white/10 hover:border-white/20 rounded-[24px] p-6 md:p-8 overflow-hidden shadow-2xl transition-all duration-500 hover:-translate-y-1 ${isFull ? 'opacity-80' : ''}`}>
+                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/2 h-[1px] bg-gradient-to-r from-transparent via-fuchsia-500/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                    <div className="space-y-6 md:space-y-8 relative z-10">
                       <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
                         <div className="space-y-2">
                           <div className="flex items-center gap-3">
@@ -128,7 +131,7 @@ export default function EnrollPage() {
                                 FULL
                               </span>
                             ) : (
-                              <span className="bg-blue-500 text-white text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wider">
+                              <span className="bg-gradient-to-r from-fuchsia-600 to-pink-600 text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider shadow-[0_0_10px_rgba(232,121,249,0.3)]">
                                 NEW
                               </span>
                             )}
@@ -152,23 +155,23 @@ export default function EnrollPage() {
                           </div>
                           <div className="text-right">
                             {hasSale && (
-                              <div className="flex items-center gap-2">
+                              <div className="flex items-center justify-end gap-2">
                                 <span className="text-sm text-white/40 line-through">PKR {cohort.original_price.toLocaleString()}</span>
                                 {cohort.sale_tag && (
-                                  <span className="bg-gradient-to-r from-yellow-500/20 to-orange-500/20 text-yellow-400 text-[9px] font-bold px-2 py-0.5 rounded-full border border-yellow-500/30 uppercase tracking-wider">
+                                  <span className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider shadow-sm">
                                     {cohort.sale_tag}
                                   </span>
                                 )}
                               </div>
                             )}
-                            <p className="text-xl font-bold text-white">
-                              PKR {(cohort.sale_price || cohort.original_price).toLocaleString()}
+                            <p className="text-2xl md:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-400">
+                              {isFreeWorkshop ? "Free" : `PKR ${displayPrice.toLocaleString()}`}
                             </p>
                           </div>
                         </div>
                       </div>
 
-                      <div className={`rounded-xl p-4 ${isFull ? 'bg-red-900/20 border-red-700/30' : 'bg-gradient-to-r from-yellow-900/20 to-yellow-800/10 border-yellow-700/30'}`}>
+                      <div className={`rounded-xl p-4 ${isFull ? 'bg-red-900/10 border border-red-500/20' : 'bg-white/5 border border-white/10 backdrop-blur-md'}`}>
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
                             {isFull ? (
@@ -178,16 +181,16 @@ export default function EnrollPage() {
                               </>
                             ) : (
                               <>
-                                <Users className="w-4 h-4 text-yellow-500" />
-                                <span className="text-yellow-400 text-sm font-medium">Spots available</span>
+                                <Users className="w-4 h-4 text-[#a3e635]" />
+                                <span className="text-white/80 text-sm font-medium">Spots available</span>
                               </>
                             )}
                           </div>
-                          <span className={`${isFull ? 'text-red-400' : 'text-yellow-400'} font-bold`}>{isFull ? '0' : spotsAvailable}</span>
+                          <span className={`${isFull ? 'text-red-400' : 'text-[#a3e635]'} font-bold`}>{isFull ? '0' : spotsAvailable}</span>
                         </div>
                       </div>
 
-                      <p className="text-white/60 text-sm leading-relaxed">
+                      <p className="text-white/70 font-light text-sm leading-relaxed">
                         {cohort.description}
                       </p>
 
@@ -201,8 +204,8 @@ export default function EnrollPage() {
                           </Button>
                         ) : (
                         <Link href={`/enroll/register?cohort=${cohort.id}`}>
-                          <Button className="w-full bg-white hover:bg-gray-100 text-black font-bold py-6 rounded-xl text-base transition-all">
-                            {buttonText}
+                          <Button className="w-full relative overflow-hidden bg-white hover:bg-gray-100 text-black font-bold py-6 rounded-xl text-base shadow-xl transition-all hover:scale-[1.02] active:scale-95 group">
+                            <span className="relative z-10">{buttonText}</span>
                           </Button>
                         </Link>
                       )}

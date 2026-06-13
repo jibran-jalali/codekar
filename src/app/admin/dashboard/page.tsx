@@ -59,6 +59,9 @@ import { toast } from "sonner";
     deletePromoCode,
     togglePromoCodeStatus,
     toggleAttendance,
+    bulkToggleAttendance,
+    markCertificateSent,
+    bulkMarkCertificatesSent,
     deleteFeedback,
     getNotificationEmails,
     updateNotificationEmails,
@@ -66,7 +69,6 @@ import { toast } from "sonner";
     sendBulkLocationEmails
   } from "../actions";
 
-import { Certificate } from "@/components/certificate";
 import { Download } from "lucide-react";
 
 
@@ -101,6 +103,8 @@ interface Enrollment {
   attended?: boolean;
   completion_date?: string;
   certificate_id?: string | null;
+  certificate_sent?: boolean;
+  cohort_id?: string;
   created_at: string;
   cohorts: { name: string } | null;
 }
@@ -126,6 +130,25 @@ interface PromoCode {
   created_at: string;
 }
 
+interface FeedbackEntry {
+  id: string;
+  student_name?: string;
+  student_email?: string;
+  rating: number;
+  comment?: string | null;
+  experience_level?: string | null;
+  built_website?: string | null;
+  instruction_rating?: number | null;
+  ai_tools_rating?: number | null;
+  pace_rating?: number | null;
+  hands_on_rating?: number | null;
+  liked_most?: string | null;
+  to_improve?: string | null;
+  recommend?: string | null;
+  testimonial_permission?: boolean | null;
+  created_at: string;
+}
+
 interface Lead {
   id: string;
   full_name: string;
@@ -139,17 +162,26 @@ interface Lead {
   created_at: string;
 }
 
+type AdminTab = "cohorts" | "enrollments" | "waitlist" | "promocodes" | "attendance" | "feedback" | "enrolment" | "settings" | "send-email" | "leads";
+
+const ADMIN_TABS: AdminTab[] = ["cohorts", "enrollments", "waitlist", "promocodes", "attendance", "feedback", "enrolment", "settings", "send-email", "leads"];
+
   export default function AdminDashboard() {
     const router = useRouter();
-    const [activeTab, setActiveTab] = useState<"cohorts" | "enrollments" | "waitlist" | "promocodes" | "attendance" | "feedback" | "enrolment" | "settings" | "send-email" | "leads">("cohorts");
+    const [activeTab, setActiveTab] = useState<AdminTab>("cohorts");
+    const [sidebarOpen, setSidebarOpen] = useState(false);
     const [cohortFilter, setCohortFilter] = useState<"active" | "full" | "inactive">("active");
   const [enrollmentFilter, setEnrollmentFilter] = useState<"pending" | "paid">("pending");
+  const [attendanceCohortFilter, setAttendanceCohortFilter] = useState<string>("all");
+  const [bulkMarkingAttendance, setBulkMarkingAttendance] = useState(false);
+  const [bulkSendingCerts, setBulkSendingCerts] = useState(false);
+  const [bulkCompletionDate, setBulkCompletionDate] = useState("");
   const [cohorts, setCohorts] = useState<Cohort[]>([]);
   const [pendingEnrollments, setPendingEnrollments] = useState<Enrollment[]>([]);
   const [paidEnrollments, setPaidEnrollments] = useState<Enrollment[]>([]);
   const [waitlist, setWaitlist] = useState<WaitlistEntry[]>([]);
   const [promoCodes, setPromoCodes] = useState<PromoCode[]>([]);
-  const [feedbacks, setFeedbacks] = useState<any[]>([]);
+  const [feedbacks, setFeedbacks] = useState<FeedbackEntry[]>([]);
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCohortModal, setShowCohortModal] = useState(false);
@@ -208,12 +240,12 @@ interface Lead {
 
     useEffect(() => {
       const savedTab = localStorage.getItem("admin_active_tab");
-      if (savedTab && ["cohorts", "enrollments", "waitlist", "promocodes", "attendance", "feedback", "enrolment", "settings", "send-email", "leads"].includes(savedTab)) {
-        setActiveTab(savedTab as any);
+      if (ADMIN_TABS.includes(savedTab as AdminTab)) {
+        setActiveTab(savedTab as AdminTab);
       }
     }, []);
 
-    const handleTabChange = (tab: any) => {
+    const handleTabChange = (tab: AdminTab) => {
       setActiveTab(tab);
       localStorage.setItem("admin_active_tab", tab);
     };
@@ -304,14 +336,16 @@ interface Lead {
 
     const handleSaveCohort = async () => {
       setSaving(true);
+      const originalPrice = Number(cohortForm.original_price || 0);
+      const salePrice = cohortForm.sale_price ? Number(cohortForm.sale_price) : null;
       const data = {
         name: cohortForm.name,
         dates: cohortForm.dates,
         time: cohortForm.time,
-        original_price: parseInt(cohortForm.original_price),
-        sale_price: cohortForm.sale_price ? parseInt(cohortForm.sale_price) : null,
+        original_price: originalPrice,
+        sale_price: salePrice,
         sale_tag: cohortForm.sale_tag || null,
-        total_spots: parseInt(cohortForm.total_spots),
+        total_spots: Number(cohortForm.total_spots || 0),
         description: cohortForm.description,
         is_active: cohortForm.is_active,
         delivery_type: cohortForm.delivery_type,
@@ -502,6 +536,137 @@ interface Lead {
     }
   };
 
+  const handleBulkMarkAttendance = async (scope: "selected" | "visible") => {
+    const dateToUse = bulkCompletionDate.trim();
+    const targetEnrollments = scope === "selected"
+      ? visibleAttendanceEnrollments.filter(enrollment => selectedIds.includes(enrollment.id))
+      : visibleAttendanceEnrollments;
+
+    if (targetEnrollments.length === 0) {
+      toast.error(scope === "selected" ? "Please select at least one student" : "No students in this view");
+      return;
+    }
+
+    if (!dateToUse) {
+      toast.error("Please enter a completion date for the bulk attendance update");
+      return;
+    }
+
+    if (!confirm(`Mark ${targetEnrollments.length} student${targetEnrollments.length === 1 ? "" : "s"} as attended?`)) return;
+
+    setBulkMarkingAttendance(true);
+    try {
+      let result: { success: boolean; error?: string };
+
+      if (scope === "visible" && attendanceCohortFilter !== "all") {
+        result = await bulkToggleAttendance(attendanceCohortFilter, true, dateToUse);
+      } else {
+        const results = await Promise.all(
+          targetEnrollments.map(enrollment => toggleAttendance(enrollment.id, true, dateToUse))
+        );
+        const firstError = results.find(item => !item.success);
+        result = firstError || { success: true };
+      }
+
+      if (result.success) {
+        toast.success(`${targetEnrollments.length} student${targetEnrollments.length === 1 ? "" : "s"} marked attended`);
+        setSelectedIds([]);
+        loadData();
+      } else {
+        toast.error(result.error || "Failed to update attendance");
+      }
+    } finally {
+      setBulkMarkingAttendance(false);
+    }
+  };
+
+  const handleToggleCertificateSent = async (enrollment: Enrollment) => {
+    const result = await markCertificateSent(enrollment.id, !enrollment.certificate_sent);
+    if (result.success) {
+      toast.success(`${enrollment.name} marked as ${!enrollment.certificate_sent ? "certificate sent" : "certificate not sent"}`);
+      loadData();
+    } else {
+      toast.error(result.error);
+    }
+  };
+
+  const handleBulkMarkCertificatesSent = async () => {
+    const targetEnrollments = visibleAttendanceEnrollments.filter(
+      enrollment => selectedIds.includes(enrollment.id) && enrollment.attended
+    );
+
+    if (targetEnrollments.length === 0) {
+      toast.error("Select attended students first");
+      return;
+    }
+
+    const result = await bulkMarkCertificatesSent(targetEnrollments.map(enrollment => enrollment.id), true);
+    if (result.success) {
+      toast.success(`${targetEnrollments.length} certificate${targetEnrollments.length === 1 ? "" : "s"} marked sent`);
+      setSelectedIds([]);
+      loadData();
+    } else {
+      toast.error(result.error);
+    }
+  };
+
+  const handleBulkSendCertificates = async () => {
+    const targetEnrollments = visibleAttendanceEnrollments.filter(
+      enrollment => selectedIds.includes(enrollment.id) && enrollment.attended && enrollment.email
+    );
+
+    if (targetEnrollments.length === 0) {
+      toast.error("Select attended students with email addresses first");
+      return;
+    }
+
+    if (!confirm(`Send certificates to ${targetEnrollments.length} selected student${targetEnrollments.length === 1 ? "" : "s"}?`)) return;
+
+    setBulkSendingCerts(true);
+    const toastId = toast.loading(`Sending ${targetEnrollments.length} certificate${targetEnrollments.length === 1 ? "" : "s"}...`);
+
+    try {
+      const results = await Promise.all(
+        targetEnrollments.map(async (enrollment) => {
+          const response = await fetch("/api/send-certificate", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              name: enrollment.name,
+              email: enrollment.email,
+              enrollmentId: enrollment.id,
+              certificateId: enrollment.certificate_id || "",
+              cohortName: enrollment.cohorts?.name || "",
+              customDate: enrollment.completion_date || bulkCompletionDate || "",
+            }),
+          });
+
+          return { id: enrollment.id, ok: response.ok };
+        })
+      );
+
+      const successfulIds = results.filter(result => result.ok).map(result => result.id);
+      const failedCount = results.length - successfulIds.length;
+
+      if (successfulIds.length > 0) {
+        await bulkMarkCertificatesSent(successfulIds, true);
+      }
+
+      if (failedCount === 0) {
+        toast.success("Certificates sent successfully", { id: toastId });
+        setSelectedIds([]);
+      } else {
+        toast.error(`${failedCount} certificate${failedCount === 1 ? "" : "s"} failed to send`, { id: toastId });
+      }
+
+      loadData();
+    } catch {
+      toast.error("An error occurred while sending certificates", { id: toastId });
+    } finally {
+      setBulkSendingCerts(false);
+    }
+  };
+
   const toggleCohortActive = async (cohort: Cohort) => {
     const result = await updateCohort(cohort.id, { is_active: !cohort.is_active });
     if (result.success) {
@@ -615,7 +780,7 @@ interface Lead {
           } else {
             toast.error("Failed to send some emails", { id: toastId });
           }
-        } catch (error) {
+        } catch {
           toast.error("An error occurred while sending emails", { id: toastId });
         } finally {
           setSendingEmails(false);
@@ -772,6 +937,14 @@ interface Lead {
 
     const filteredEnrollments = enrollmentFilter === "pending" ? pendingEnrollments : paidEnrollments;
 
+    const visibleAttendanceEnrollments = attendanceCohortFilter === "all"
+      ? paidEnrollments
+      : paidEnrollments.filter(enrollment => enrollment.cohort_id === attendanceCohortFilter);
+
+    const selectedAttendanceIds = visibleAttendanceEnrollments
+      .filter(enrollment => selectedIds.includes(enrollment.id))
+      .map(enrollment => enrollment.id);
+
     const filteredCrmEnrollments = paidEnrollments.filter(e => e.attended).filter(e => {
       if (!crmStartDate && !crmEndDate) return true;
       const date = new Date(e.created_at);
@@ -795,137 +968,119 @@ interface Lead {
   }
 
       return (
-        <main className="min-h-screen bg-black text-white" suppressHydrationWarning>
-        <div className="border-b border-white/10">
-          <div className="container max-w-7xl mx-auto px-4 py-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <h1 className="text-xl font-bold">CodeKar Admin</h1>
-              <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-6 w-full sm:w-auto">
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  className="bg-white/5 border-white/10 text-white/60 hover:text-white hover:bg-white/10 w-full sm:w-auto h-9"
-                  onClick={() => loadData()}
-                  disabled={loading}
-                >
-                  <RotateCcw className={`w-3.5 h-3.5 mr-2 ${loading ? "animate-spin" : ""}`} />
-                  Refresh
-                </Button>
-                <div className="flex items-center justify-between sm:justify-start gap-2 px-3 py-2 bg-white/5 border border-white/10 rounded-lg w-full sm:w-auto">
+        <main className="min-h-screen bg-[#080808] text-white" suppressHydrationWarning>
 
-                <span className="text-[10px] sm:text-xs text-white/40 uppercase font-bold tracking-wider">Revenue:</span>
-                <div className="flex items-center gap-2">
-                  <span className="font-mono font-bold text-green-400 text-sm sm:text-base">
-                    {showRevenue ? `PKR ${totalRevenue.toLocaleString()}` : "PKR ••••••••"}
-                  </span>
-                  <button 
-                    onClick={() => setShowRevenue(!showRevenue)}
-                    className="text-white/40 hover:text-white transition-colors p-1"
-                  >
-                    {showRevenue ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
-                </div>
+        {/* Mobile sidebar overlay */}
+        {sidebarOpen && (
+          <div
+            className="fixed inset-0 bg-black/70 backdrop-blur-sm z-30 lg:hidden"
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
+
+        {/* Top Header */}
+        <header className="fixed top-0 left-0 right-0 z-20 bg-[#080808]/90 backdrop-blur-xl border-b border-white/5 h-14 flex items-center px-4">
+          <div className="flex items-center gap-3 flex-1">
+            {/* Mobile hamburger */}
+            <button
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="lg:hidden p-2 rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition-colors"
+            >
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect y="2" width="18" height="2" rx="1" fill="currentColor"/><rect y="8" width="18" height="2" rx="1" fill="currentColor"/><rect y="14" width="18" height="2" rx="1" fill="currentColor"/></svg>
+            </button>
+            <div className="flex items-center gap-2">
+              <div className="w-7 h-7 rounded-lg bg-white flex items-center justify-center">
+                <span className="text-black text-xs font-black">CK</span>
               </div>
-              <Button 
-                variant="ghost" 
-                size="sm"
-                className="text-white/60 hover:text-white hover:bg-white/10 w-full sm:w-auto"
-                onClick={handleLogout}
-              >
-                <LogOut className="w-4 h-4 mr-2" />
-                Logout
-              </Button>
+              <span className="font-bold text-sm tracking-tight">CodeKar Admin</span>
             </div>
           </div>
-        </div>
+          <div className="flex items-center gap-2">
+            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-white/5 border border-white/10 rounded-lg">
+              <span className="text-[10px] text-white/40 uppercase font-bold tracking-wider">Revenue:</span>
+              <span className="font-mono font-bold text-green-400 text-sm">
+                {showRevenue ? `PKR ${totalRevenue.toLocaleString()}` : "PKR ••••••"}
+              </span>
+              <button onClick={() => setShowRevenue(!showRevenue)} className="text-white/40 hover:text-white transition-colors">
+                {showRevenue ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+              </button>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-white/50 hover:text-white hover:bg-white/10 h-9 px-3"
+              onClick={() => loadData()}
+              disabled={loading}
+            >
+              <RotateCcw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-white/50 hover:text-white hover:bg-white/10 h-9 px-3"
+              onClick={handleLogout}
+            >
+              <LogOut className="w-4 h-4" />
+            </Button>
+          </div>
+        </header>
 
-        <div className="container max-w-7xl mx-auto px-4 py-6 sm:py-8">
-          <div className="flex gap-2 sm:gap-4 mb-8 overflow-x-auto pb-4 scrollbar-hide -mx-4 px-4">
-            <Button
-              variant={activeTab === "cohorts" ? "default" : "outline"}
-              className={activeTab === "cohorts" ? "bg-white text-black shrink-0 h-9 sm:h-10 text-xs sm:text-sm" : "border-white/20 text-white hover:bg-white/10 shrink-0 h-9 sm:h-10 text-xs sm:text-sm"}
-              onClick={() => handleTabChange("cohorts")}
-            >
-              <Calendar className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-              Cohorts ({cohorts.length})
-            </Button>
-            <Button
-              variant={activeTab === "enrollments" ? "default" : "outline"}
-              className={activeTab === "enrollments" ? "bg-white text-black shrink-0 h-9 sm:h-10 text-xs sm:text-sm relative" : "border-white/20 text-white hover:bg-white/10 shrink-0 h-9 sm:h-10 text-xs sm:text-sm relative"}
-              onClick={() => handleTabChange("enrollments")}
-            >
-              <Users className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-              Enrollments ({pendingEnrollments.length + paidEnrollments.length})
-              {pendingEnrollments.length > 0 && (
-                <span className="absolute -top-1 -right-1 w-5 h-5 bg-orange-500 rounded-full text-[10px] font-bold text-white flex items-center justify-center animate-pulse">
-                  {pendingEnrollments.length}
-                </span>
-              )}
-            </Button>
-            <Button
-              variant={activeTab === "waitlist" ? "default" : "outline"}
-              className={activeTab === "waitlist" ? "bg-orange-500 text-white shrink-0 h-9 sm:h-10 text-xs sm:text-sm" : "border-white/20 text-white hover:bg-white/10 shrink-0 h-9 sm:h-10 text-xs sm:text-sm"}
-              onClick={() => handleTabChange("waitlist")}
-            >
-              <Bell className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-              Waitlist ({waitlist.length})
-            </Button>
-            <Button
-              variant={activeTab === "promocodes" ? "default" : "outline"}
-              className={activeTab === "promocodes" ? "bg-blue-500 text-white shrink-0 h-9 sm:h-10 text-xs sm:text-sm" : "border-white/20 text-white hover:bg-white/10 shrink-0 h-9 sm:h-10 text-xs sm:text-sm"}
-              onClick={() => handleTabChange("promocodes")}
-            >
-              <Ticket className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-              Promo ({promoCodes.length})
-            </Button>
-            <Button
-              variant={activeTab === "attendance" ? "default" : "outline"}
-              className={activeTab === "attendance" ? "bg-purple-600 text-white shrink-0 h-9 sm:h-10 text-xs sm:text-sm" : "border-white/20 text-white hover:bg-white/10 shrink-0 h-9 sm:h-10 text-xs sm:text-sm"}
-              onClick={() => handleTabChange("attendance")}
-            >
-              <CheckSquare className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-              Attendance ({paidEnrollments.length})
-            </Button>
-              <Button
-                variant={activeTab === "feedback" ? "default" : "outline"}
-                className={activeTab === "feedback" ? "bg-green-500 text-white shrink-0 h-9 sm:h-10 text-xs sm:text-sm" : "border-white/20 text-white hover:bg-white/10 shrink-0 h-9 sm:h-10 text-xs sm:text-sm"}
-                onClick={() => handleTabChange("feedback")}
-              >
-                <MessageSquare className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                Feedback ({feedbacks.length})
-              </Button>
-              <Button
-                variant={activeTab === "enrolment" ? "default" : "outline"}
-                className={activeTab === "enrolment" ? "bg-yellow-600 text-white shrink-0 h-9 sm:h-10 text-xs sm:text-sm" : "border-white/20 text-white hover:bg-white/10 shrink-0 h-9 sm:h-10 text-xs sm:text-sm"}
-                onClick={() => handleTabChange("enrolment")}
-              >
-                <BookOpen className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                Enrolment ({paidEnrollments.filter(e => e.attended).length})
-              </Button>
-                <Button
-                  variant={activeTab === "settings" ? "default" : "outline"}
-                  className={activeTab === "settings" ? "bg-gray-600 text-white shrink-0 h-9 sm:h-10 text-xs sm:text-sm" : "border-white/20 text-white hover:bg-white/10 shrink-0 h-9 sm:h-10 text-xs sm:text-sm"}
-                  onClick={() => handleTabChange("settings")}
+        <div className="flex pt-14">
+          {/* Sidebar */}
+          <aside className={`fixed top-14 left-0 bottom-0 w-60 bg-[#0d0d0d] border-r border-white/5 z-40 flex flex-col transition-transform duration-300 ease-in-out ${
+            sidebarOpen ? "translate-x-0" : "-translate-x-full"
+          } lg:translate-x-0`}>
+            <nav className="flex-1 overflow-y-auto p-3 space-y-0.5">
+              {[
+                { id: "cohorts", label: "Cohorts", icon: <Calendar className="w-4 h-4" />, count: cohorts.length, color: "text-white" },
+                { id: "enrollments", label: "Enrollments", icon: <Users className="w-4 h-4" />, count: pendingEnrollments.length + paidEnrollments.length, badge: pendingEnrollments.length, color: "text-orange-400" },
+                { id: "waitlist", label: "Waitlist", icon: <Bell className="w-4 h-4" />, count: waitlist.length, color: "text-yellow-400" },
+                { id: "promocodes", label: "Promo Codes", icon: <Ticket className="w-4 h-4" />, count: promoCodes.length, color: "text-blue-400" },
+                { id: "attendance", label: "Attendance", icon: <CheckSquare className="w-4 h-4" />, count: paidEnrollments.length, color: "text-purple-400" },
+                { id: "feedback", label: "Feedback", icon: <MessageSquare className="w-4 h-4" />, count: feedbacks.length, color: "text-green-400" },
+                { id: "enrolment", label: "CRM", icon: <BookOpen className="w-4 h-4" />, count: paidEnrollments.filter(e => e.attended).length, color: "text-yellow-500" },
+                { id: "send-email", label: "Send Email", icon: <Mail className="w-4 h-4" />, count: null, color: "text-pink-400" },
+                { id: "leads", label: "Leads", icon: <UserPlus className="w-4 h-4" />, count: leads.length, color: "text-cyan-400" },
+                { id: "settings", label: "Settings", icon: <Settings className="w-4 h-4" />, count: null, color: "text-white/60" },
+              ].map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => { handleTabChange(item.id as AdminTab); setSidebarOpen(false); }}
+                  className={`w-full flex items-center justify-between gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 group ${
+                    activeTab === item.id
+                      ? "bg-white/10 text-white"
+                      : "text-white/50 hover:text-white hover:bg-white/5"
+                  }`}
                 >
-                  <Settings className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                  Settings
-                </Button>
-                <Button
-                    variant={activeTab === "send-email" ? "default" : "outline"}
-                    className={activeTab === "send-email" ? "bg-pink-600 text-white shrink-0 h-9 sm:h-10 text-xs sm:text-sm" : "border-white/20 text-white hover:bg-white/10 shrink-0 h-9 sm:h-10 text-xs sm:text-sm"}
-                    onClick={() => handleTabChange("send-email")}
-                  >
-                    <Mail className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                    Send Email
-                  </Button>
-                  <Button
-                    variant={activeTab === "leads" ? "default" : "outline"}
-                    className={activeTab === "leads" ? "bg-cyan-600 text-white shrink-0 h-9 sm:h-10 text-xs sm:text-sm" : "border-white/20 text-white hover:bg-white/10 shrink-0 h-9 sm:h-10 text-xs sm:text-sm"}
-                    onClick={() => handleTabChange("leads")}
-                  >
-                    <UserPlus className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                    Leads ({leads.length})
-                  </Button>
-              </div>
+                  <div className="flex items-center gap-3">
+                    <span className={activeTab === item.id ? item.color : "text-white/30 group-hover:text-white/60"}>
+                      {item.icon}
+                    </span>
+                    <span>{item.label}</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    {item.badge !== undefined && item.badge > 0 && (
+                      <span className="w-4 h-4 bg-orange-500 rounded-full text-[9px] font-bold text-white flex items-center justify-center animate-pulse">
+                        {item.badge}
+                      </span>
+                    )}
+                    {item.count !== null && (
+                      <span className={`text-xs font-mono ${activeTab === item.id ? "text-white/60" : "text-white/20"}`}>
+                        {item.count}
+                      </span>
+                    )}
+                  </div>
+                </button>
+              ))}
+            </nav>
+            <div className="p-3 border-t border-white/5">
+              <div className="px-3 py-2 text-[10px] text-white/20 font-mono text-center">v2.4.0-stable</div>
+            </div>
+          </aside>
+
+          {/* Main content area */}
+          <div className="flex-1 lg:ml-60 min-w-0">
+            <div className="p-4 sm:p-6 lg:p-8">
 
 
           {activeTab === "cohorts" && (
@@ -973,6 +1128,8 @@ interface Lead {
                 ) : (
                   filteredCohorts.map((cohort) => {
                     const isFull = cohort.spots_taken >= cohort.total_spots;
+                    const displayPrice = cohort.sale_price ?? cohort.original_price;
+                    const isFreeWorkshop = displayPrice <= 0;
                     return (
                       <Card key={cohort.id} className="bg-[#111] border-white/10 p-4 sm:p-6 rounded-xl">
                         <div className="flex flex-col gap-4">
@@ -997,9 +1154,9 @@ interface Lead {
                             <p className="text-white/60 text-xs sm:text-sm">{cohort.dates} • {cohort.time}</p>
                             <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 text-xs sm:text-sm">
                               <span className="text-white/60">
-                                Price: <span className="text-white font-medium">PKR {cohort.original_price.toLocaleString()}</span>
-                                {cohort.sale_price && (
-                                  <span className="text-green-400 ml-2">→ PKR {cohort.sale_price.toLocaleString()}</span>
+                                Price: <span className="text-white font-medium">{isFreeWorkshop ? "Free" : `PKR ${cohort.original_price.toLocaleString()}`}</span>
+                                {cohort.sale_price !== null && cohort.sale_price < cohort.original_price && !isFreeWorkshop && (
+                                  <span className="text-green-400 ml-2">to PKR {cohort.sale_price.toLocaleString()}</span>
                                 )}
                               </span>
                               <span className="text-white/60">
@@ -1452,12 +1609,79 @@ interface Lead {
             {activeTab === "attendance" && (
               <div className="space-y-6">
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                  <h2 className="text-xl sm:text-2xl font-bold">Attendance & Certification</h2>
+                  <div>
+                    <h2 className="text-xl sm:text-2xl font-bold">Attendance & Certification</h2>
+                    <p className="text-xs text-white/40 mt-1">
+                      {visibleAttendanceEnrollments.length} paid student{visibleAttendanceEnrollments.length === 1 ? "" : "s"} in this view
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+                    <select
+                      value={attendanceCohortFilter}
+                      onChange={(event) => {
+                        setAttendanceCohortFilter(event.target.value);
+                        setSelectedIds([]);
+                      }}
+                      className="h-9 rounded-md bg-[#111] border border-white/10 text-white text-xs px-3 outline-none"
+                    >
+                      <option value="all">All paid students</option>
+                      {cohorts.map((cohort) => (
+                        <option key={cohort.id} value={cohort.id}>{cohort.name}</option>
+                      ))}
+                    </select>
+                    <Input
+                      placeholder="Completion date"
+                      value={bulkCompletionDate}
+                      onChange={(event) => setBulkCompletionDate(event.target.value)}
+                      className="bg-[#111] border-white/10 text-xs h-9 w-full sm:w-44"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] p-3">
+                  <Button
+                    size="sm"
+                    className="bg-green-600 hover:bg-green-700 text-white"
+                    onClick={() => handleBulkMarkAttendance("visible")}
+                    disabled={bulkMarkingAttendance || visibleAttendanceEnrollments.length === 0}
+                  >
+                    {bulkMarkingAttendance ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <CheckSquare className="w-4 h-4 mr-2" />}
+                    Mark All Visible Attended
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="bg-white/5 border-white/10 text-white hover:bg-white/10"
+                    onClick={() => handleBulkMarkAttendance("selected")}
+                    disabled={bulkMarkingAttendance || selectedAttendanceIds.length === 0}
+                  >
+                    <Check className="w-4 h-4 mr-2" />
+                    Mark Selected Attended ({selectedAttendanceIds.length})
+                  </Button>
+                  <Button
+                    size="sm"
+                    className="bg-pink-600 hover:bg-pink-700 text-white"
+                    onClick={handleBulkSendCertificates}
+                    disabled={bulkSendingCerts || selectedAttendanceIds.length === 0}
+                  >
+                    {bulkSendingCerts ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Send className="w-4 h-4 mr-2" />}
+                    Send Selected Certificates
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="bg-white/5 border-white/10 text-white hover:bg-white/10"
+                    onClick={handleBulkMarkCertificatesSent}
+                    disabled={selectedAttendanceIds.length === 0}
+                  >
+                    <Mail className="w-4 h-4 mr-2" />
+                    Mark Selected Sent
+                  </Button>
                   {selectedIds.length > 0 && (
-                    <Button 
-                      variant="destructive" 
-                      size="sm" 
-                      className="w-full sm:w-auto bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500/20"
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      className="bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500/20"
                       onClick={handleBulkDelete}
                     >
                       <Trash2 className="w-4 h-4 mr-2" />
@@ -1468,10 +1692,10 @@ interface Lead {
 
               {/* Mobile Card View */}
               <div className="grid gap-4 sm:hidden">
-                {paidEnrollments.length === 0 ? (
+                {visibleAttendanceEnrollments.length === 0 ? (
                   <div className="text-center py-12 text-white/40">No paid students found</div>
                 ) : (
-                  paidEnrollments.map((enrollment) => (
+                  visibleAttendanceEnrollments.map((enrollment) => (
                     <Card key={enrollment.id} className={`bg-[#111] border-white/10 p-4 rounded-xl space-y-4 transition-colors ${selectedIds.includes(enrollment.id) ? "border-white/40 bg-white/5" : ""}`}>
                       <div className="flex justify-between items-start gap-3">
                         <div className="flex items-center gap-3">
@@ -1517,6 +1741,23 @@ interface Lead {
                         />
                       </div>
 
+                      <div className="flex items-center justify-between rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2">
+                        <span className="text-[10px] text-white/40 uppercase font-bold tracking-widest">Certificate Email</span>
+                        <button
+                          onClick={() => handleToggleCertificateSent(enrollment)}
+                          disabled={!enrollment.attended}
+                          className={`rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wider transition-colors ${
+                            enrollment.certificate_sent
+                              ? "bg-green-500/15 text-green-400 hover:bg-green-500/25"
+                              : enrollment.attended
+                                ? "bg-yellow-500/15 text-yellow-300 hover:bg-yellow-500/25"
+                                : "bg-white/5 text-white/25 cursor-not-allowed"
+                          }`}
+                        >
+                          {enrollment.certificate_sent ? "Marked Sent" : "Mark as Sent"}
+                        </button>
+                      </div>
+
                        {enrollment.attended ? (
                          <>
                           <div className="pt-3 border-t border-white/5 flex items-center justify-between gap-4">
@@ -1543,11 +1784,11 @@ interface Lead {
                                   <Eye className="w-4 h-4 mr-2" /> View Certificate
                                 </Button>
                               </div>
-                              <div className="flex justify-between items-center px-1 text-[9px] font-mono text-white/20">
-                                <span>CERT ID: {enrollment.certificate_id || "N/A"}</span>
-                              </div>
-                          </>
-                        ) : (
+                               <div className="flex justify-between items-center px-1 text-[9px] font-mono text-white/20">
+                                 <span>CERT ID: {enrollment.certificate_id || "N/A"}</span>
+                               </div>
+                           </>
+                         ) : (
                         <p className="text-[10px] text-white/20 italic text-center py-1">Enter date & mark present to issue certificate</p>
                       )}
                     </Card>
@@ -1563,24 +1804,28 @@ interface Lead {
                       <th className="py-3 px-4 text-left w-10">
                         <button 
                           onClick={() => {
-                            if (selectedIds.length === paidEnrollments.length) setSelectedIds([]);
-                            else setSelectedIds(paidEnrollments.map(e => e.id));
+                            if (selectedAttendanceIds.length === visibleAttendanceEnrollments.length) {
+                              setSelectedIds([]);
+                            } else {
+                              setSelectedIds(visibleAttendanceEnrollments.map(e => e.id));
+                            }
                           }}
-                          className={`p-0.5 rounded border transition-colors ${selectedIds.length === paidEnrollments.length && paidEnrollments.length > 0 ? "bg-white border-white text-black" : "border-white/20 text-transparent hover:border-white/40"}`}
+                          className={`p-0.5 rounded border transition-colors ${selectedAttendanceIds.length === visibleAttendanceEnrollments.length && visibleAttendanceEnrollments.length > 0 ? "bg-white border-white text-black" : "border-white/20 text-transparent hover:border-white/40"}`}
                         >
                           <Check className="w-3 h-3" />
                         </button>
                       </th>
                         <th className="text-left py-3 px-4 text-white/60 font-medium">Status</th>
                         <th className="text-left py-3 px-4 text-white/60 font-medium">Name</th>
-                        <th className="text-left py-3 px-4 text-white/60 font-medium">Email</th>
-                        <th className="text-left py-3 px-4 text-white/60 font-medium w-48">Completion Date</th>
-                      <th className="text-left py-3 px-4 text-white/60 font-medium">Cohort</th>
-                      <th className="text-right py-3 px-4 text-white/60 font-medium">Actions</th>
+                          <th className="text-left py-3 px-4 text-white/60 font-medium">Email</th>
+                          <th className="text-left py-3 px-4 text-white/60 font-medium w-48">Completion Date</th>
+                        <th className="text-left py-3 px-4 text-white/60 font-medium">Cohort</th>
+                        <th className="text-left py-3 px-4 text-white/60 font-medium">Certificate Email</th>
+                        <th className="text-right py-3 px-4 text-white/60 font-medium">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {paidEnrollments.map((enrollment) => (
+                    {visibleAttendanceEnrollments.map((enrollment) => (
                       <tr key={enrollment.id} className={`border-b border-white/5 hover:bg-white/5 transition-colors ${selectedIds.includes(enrollment.id) ? "bg-white/5" : ""}`}>
                         <td className="py-3 px-4">
                           <button 
@@ -1613,6 +1858,21 @@ interface Lead {
                             />
                           </td>
                         <td className="py-3 px-4 text-white/60">{enrollment.cohorts?.name || "—"}</td>
+                        <td className="py-3 px-4">
+                          <button
+                            onClick={() => handleToggleCertificateSent(enrollment)}
+                            disabled={!enrollment.attended}
+                            className={`rounded-full px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider transition-colors ${
+                              enrollment.certificate_sent
+                                ? "bg-green-500/15 text-green-400 hover:bg-green-500/25"
+                                : enrollment.attended
+                                  ? "bg-yellow-500/15 text-yellow-300 hover:bg-yellow-500/25"
+                                  : "bg-white/5 text-white/25 cursor-not-allowed"
+                            }`}
+                          >
+                            {enrollment.certificate_sent ? "Marked Sent" : "Mark as Sent"}
+                          </button>
+                        </td>
                         <td className="py-3 px-4 text-right">
                           <div className="flex items-center justify-end gap-2">
                               {enrollment.attended ? (
@@ -1635,12 +1895,12 @@ interface Lead {
                                     >
                                       <Eye className="w-4 h-4 mr-2" /> View Certificate
                                     </Button>
-                                    <div className="absolute -bottom-5 right-0 text-[8px] font-mono text-white/20 whitespace-nowrap">
-                                      ID: {enrollment.certificate_id || "N/A"}
-                                    </div>
-                                  </div>
+                                     <div className="absolute -bottom-5 right-0 text-[8px] font-mono text-white/20 whitespace-nowrap">
+                                      ID: {enrollment.certificate_id || "N/A"} {enrollment.certificate_sent ? "• SENT" : ""}
+                                     </div>
+                                   </div>
 
-                              ) : (
+                               ) : (
                               <span className="text-[10px] text-white/20 italic">Set date & mark attended</span>
                             )}
                             <Button 
@@ -2543,7 +2803,9 @@ interface Lead {
                 </p>
               </footer>
             </div>
-          </div>
+            </div>{/* end p-4 sm:p-6 lg:p-8 */}
+          </div>{/* end flex-1 lg:ml-60 */}
+        </div>{/* end flex pt-14 */}
 
 
         {showCohortModal && (
@@ -2586,6 +2848,37 @@ interface Lead {
                     />
                   </div>
                 </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const isFree = cohortForm.original_price === "0" && !cohortForm.sale_price;
+                    setCohortForm({
+                      ...cohortForm,
+                      original_price: isFree ? "" : "0",
+                      sale_price: "",
+                      sale_tag: isFree ? "" : "FREE",
+                    });
+                  }}
+                  className={`w-full rounded-xl border p-4 text-left transition-all ${
+                    cohortForm.original_price === "0" && !cohortForm.sale_price
+                      ? "border-green-500/40 bg-green-500/10"
+                      : "border-white/10 bg-[#1a1a1a] hover:border-white/20"
+                  }`}
+                >
+                  <div className="flex items-center justify-between gap-4">
+                    <div>
+                      <p className="text-sm font-bold text-white">Free Workshop</p>
+                      <p className="text-xs text-white/50">Students register directly and receive confirmation email without payment.</p>
+                    </div>
+                    <span className={`h-5 w-9 rounded-full p-0.5 transition-colors ${
+                      cohortForm.original_price === "0" && !cohortForm.sale_price ? "bg-green-500" : "bg-white/20"
+                    }`}>
+                      <span className={`block h-4 w-4 rounded-full bg-white transition-transform ${
+                        cohortForm.original_price === "0" && !cohortForm.sale_price ? "translate-x-4" : "translate-x-0"
+                      }`} />
+                    </span>
+                  </div>
+                </button>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label className="text-white/80 text-xs">Price (PKR)</Label>
@@ -2594,6 +2887,7 @@ interface Lead {
                       className="bg-[#1a1a1a] border-white/10 h-10 sm:h-11"
                       value={cohortForm.original_price}
                       onChange={(e) => setCohortForm({ ...cohortForm, original_price: e.target.value })}
+                      disabled={cohortForm.original_price === "0" && !cohortForm.sale_price}
                     />
                   </div>
                   <div className="space-y-2">
@@ -2603,6 +2897,7 @@ interface Lead {
                       className="bg-[#1a1a1a] border-white/10 h-10 sm:h-11"
                       value={cohortForm.sale_price}
                       onChange={(e) => setCohortForm({ ...cohortForm, sale_price: e.target.value })}
+                      disabled={cohortForm.original_price === "0" && !cohortForm.sale_price}
                     />
                   </div>
                 </div>

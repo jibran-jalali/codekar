@@ -95,9 +95,11 @@ export async function sendEnrollmentEmail(data: {
   joiningType: string;
   pricePaid: number;
 }) {
+  const isFreeRegistration = data.pricePaid <= 0;
+
   return sendEmail({
     to: data.email,
-    subject: `Enrollment Received - ${data.cohortName}`,
+    subject: `${isFreeRegistration ? "Registration Confirmed" : "Enrollment Received"} - ${data.cohortName}`,
     react: React.createElement(EnrollmentConfirmationEmail, data),
   });
 }
@@ -125,11 +127,12 @@ export async function sendAdminNotificationEmail(data: {
 }) {
   const results = [];
   const adminEmails = [...new Set(data.adminEmails.map(email => email.trim()).filter(Boolean))];
+  const isFreeRegistration = data.pricePaid <= 0;
 
   for (const email of adminEmails) {
     const result = await sendEmail({
       to: email,
-      subject: `New Registration: ${data.studentName} - Pending Payment Verification`,
+      subject: `New Registration: ${data.studentName} - ${isFreeRegistration ? "Free Workshop Confirmed" : "Pending Payment Verification"}`,
       react: React.createElement(AdminNotificationEmail, data),
     });
     results.push({ email, ...result });

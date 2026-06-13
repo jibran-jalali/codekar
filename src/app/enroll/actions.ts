@@ -3,6 +3,15 @@
 import { supabase } from "@/lib/supabase";
 import { sendEnrollmentEmail, sendWaitlistEmail, sendAdminNotificationEmail } from "@/lib/mail";
 
+function generateCertificateId() {
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  let result = "";
+  for (let i = 0; i < 6; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return `CERT-${result}`;
+}
+
 export async function enrollUser(formData: {
   name: string;
   age: number;
@@ -17,26 +26,54 @@ export async function enrollUser(formData: {
   cohort_dates?: string;
   cohort_time?: string;
 }) {
-    const { data, error } = await supabase
-      .from("enrollments")
-      .insert([
-        {
-          name: formData.name,
-          age: formData.age,
-          phone: formData.phone,
-          email: formData.email,
-          profession: formData.profession,
-          joining_type: formData.joining_type,
-          promo_code: formData.promo_code,
-          price_paid: formData.price_paid,
-          cohort_id: formData.cohort_id,
-        },
-      ])
-      .select();
+    const isFreeRegistration = formData.price_paid <= 0;
+    const enrollmentPayload = {
+      name: formData.name,
+      age: formData.age,
+      phone: formData.phone,
+      email: formData.email,
+      profession: formData.profession,
+      joining_type: formData.joining_type,
+      promo_code: formData.promo_code,
+      price_paid: formData.price_paid,
+      cohort_id: formData.cohort_id,
+    };
+
+    const { data, error } = isFreeRegistration
+      ? await supabase
+          .from("paid_enrollments")
+          .insert([
+            {
+              ...enrollmentPayload,
+              status: "paid",
+              attended: false,
+              certificate_id: generateCertificateId(),
+            },
+          ])
+          .select()
+      : await supabase
+          .from("enrollments")
+          .insert([enrollmentPayload])
+          .select();
 
     if (error) {
       console.error("Error enrolling user:", error);
       return { success: false, error: error.message };
+    }
+
+    if (isFreeRegistration && formData.promo_code) {
+      const { data: promoData } = await supabase
+        .from("promo_codes")
+        .select("id, usage_count")
+        .eq("code", formData.promo_code.toUpperCase())
+        .maybeSingle();
+
+      if (promoData) {
+        await supabase
+          .from("promo_codes")
+          .update({ usage_count: (promoData.usage_count || 0) + 1 })
+          .eq("id", promoData.id);
+      }
     }
 
     // Trigger automated email to student

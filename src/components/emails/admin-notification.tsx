@@ -28,7 +28,10 @@ export const AdminNotificationEmail = ({
   cohortName,
   pricePaid,
   joiningType,
-}: AdminNotificationEmailProps) => (
+}: AdminNotificationEmailProps) => {
+  const isFreeRegistration = pricePaid <= 0;
+
+  return (
   <Html>
     <Head>
       <style>
@@ -39,18 +42,20 @@ export const AdminNotificationEmail = ({
         `}
       </style>
     </Head>
-    <Preview>New Registration: {studentName} - Pending Payment Verification</Preview>
+    <Preview>New Registration: {studentName} - {isFreeRegistration ? "Free Workshop Confirmed" : "Pending Payment Verification"}</Preview>
     <Body style={main}>
       <Container style={container} className="container">
         <Section style={header}>
-          <Text style={badge}>New Registration Alert</Text>
-          <Heading style={h1}>Payment Pending Verification</Heading>
+          <Text style={{...badge, color: isFreeRegistration ? "#22c55e" : "#f59e0b"}}>New Registration Alert</Text>
+          <Heading style={h1}>{isFreeRegistration ? "Free Workshop Confirmed" : "Payment Pending Verification"}</Heading>
         </Section>
 
         <Section style={content}>
           <Section style={alertBox}>
             <Text style={alertText}>
-              A new student has registered and claims to have made payment. Please verify in the dashboard.
+              {isFreeRegistration
+                ? "A student registered for a free workshop and has been added directly to confirmed enrollments. No payment verification is needed."
+                : "A new student has registered and claims to have made payment. Please verify in the dashboard."}
             </Text>
           </Section>
 
@@ -80,7 +85,7 @@ export const AdminNotificationEmail = ({
                 </tr>
                 <tr>
                   <td style={labelCell}>Amount</td>
-                  <td style={{...valueCell, color: '#22c55e', fontWeight: 'bold'}}>PKR {pricePaid.toLocaleString()}</td>
+                  <td style={{...valueCell, color: '#22c55e', fontWeight: 'bold'}}>{isFreeRegistration ? "Free" : `PKR ${pricePaid.toLocaleString()}`}</td>
                 </tr>
               </tbody>
             </table>
@@ -88,12 +93,14 @@ export const AdminNotificationEmail = ({
 
           <Section style={ctaBox}>
             <Link href="https://codekar.co/admin/dashboard" style={ctaButton}>
-              Open Dashboard to Verify
+              {isFreeRegistration ? "Open Dashboard" : "Open Dashboard to Verify"}
             </Link>
           </Section>
 
           <Text style={smallText}>
-            Go to the Enrollments tab → Pending section to verify and mark this payment as confirmed.
+            {isFreeRegistration
+              ? "Go to the Enrollments tab to view this student in the confirmed list."
+              : "Go to the Enrollments tab, Pending section, to verify and mark this payment as confirmed."}
           </Text>
         </Section>
 
@@ -107,7 +114,8 @@ export const AdminNotificationEmail = ({
       </Container>
     </Body>
   </Html>
-);
+  );
+};
 
 const main = {
   backgroundColor: "#000000",

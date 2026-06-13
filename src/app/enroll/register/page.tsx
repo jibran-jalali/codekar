@@ -21,7 +21,6 @@ import {
   Copy,
   Sparkles,
   Calendar,
-  Clock,
   ArrowRight,
   Send,
   Mail
@@ -92,9 +91,10 @@ function RegisterContent() {
     setFormValid(isValid);
   }, [formData]);
 
-  const originalPrice = cohort?.original_price || 3500;
-  const salePrice = cohort?.sale_price || originalPrice;
+  const originalPrice = cohort?.original_price ?? 3500;
+  const salePrice = cohort?.sale_price ?? originalPrice;
   const currentPrice = discountApplied ? Math.max(0, salePrice - discountAmount) : salePrice;
+  const isFreeWorkshop = currentPrice <= 0;
 
   const handleApplyPromo = async () => {
     if (!promoCode) return;
@@ -119,7 +119,7 @@ function RegisterContent() {
       } else {
         throw new Error("Clipboard API not available");
       }
-    } catch (err) {
+    } catch {
       // Fallback for environments where clipboard API is blocked
       const textArea = document.createElement("textarea");
       textArea.value = text;
@@ -132,15 +132,19 @@ function RegisterContent() {
       try {
         document.execCommand('copy');
         toast.success(`${label} copied!`);
-      } catch (copyErr) {
+      } catch {
         toast.error(`Could not copy ${label}. Please select and copy manually.`);
       }
       document.body.removeChild(textArea);
     }
   };
 
-  const handleNextStep = () => {
+  const handleNextStep = async () => {
     if (currentStep === 1 && formValid) {
+      if (isFreeWorkshop) {
+        await handleSubmitPayment();
+        return;
+      }
       setCurrentStep(2);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -174,7 +178,7 @@ function RegisterContent() {
 
       if (result.success) {
         setSubmitted(true);
-        toast.success("Payment confirmation submitted! Check your email.");
+        toast.success(isFreeWorkshop ? "Registration confirmed! Check your email." : "Payment confirmation submitted! Check your email.");
       } else {
         toast.error(result.error || "Failed to submit enrollment");
       }
@@ -194,10 +198,10 @@ function RegisterContent() {
           <div className="w-24 h-24 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
             <CheckCircle2 className="w-14 h-14 text-green-500" />
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold">You're Almost In!</h1>
+          <h1 className="text-4xl md:text-5xl font-bold">{isFreeWorkshop ? "You're In!" : "You're Almost In!"}</h1>
           <div className="space-y-4 text-white/60">
             <p className="text-lg">
-              We've received your registration for <span className="text-white font-bold">{cohort?.name}</span>.
+              We&apos;ve received your registration for <span className="text-white font-bold">{cohort?.name}</span>.
             </p>
             <div className="bg-white/5 border border-white/10 rounded-2xl p-6 text-left space-y-4">
               <div className="flex items-start gap-3">
@@ -207,25 +211,37 @@ function RegisterContent() {
                   <p className="text-xs">Check your inbox at <span className="text-white">{formData.email}</span></p>
                 </div>
               </div>
-              <div className="flex items-start gap-3">
-                <Phone className="w-5 h-5 text-green-500 mt-0.5" />
-                <div>
-                  <p className="text-white font-bold text-sm">Send Payment Screenshot</p>
-                  <p className="text-xs">WhatsApp your bank transfer screenshot to confirm your spot.</p>
+              {isFreeWorkshop ? (
+                <div className="flex items-start gap-3">
+                  <CheckCircle2 className="w-5 h-5 text-green-500 mt-0.5" />
+                  <div>
+                    <p className="text-white font-bold text-sm">Spot Confirmed</p>
+                    <p className="text-xs">No payment is required for this free workshop.</p>
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <div className="flex items-start gap-3">
+                  <Phone className="w-5 h-5 text-green-500 mt-0.5" />
+                  <div>
+                    <p className="text-white font-bold text-sm">Send Payment Screenshot</p>
+                    <p className="text-xs">WhatsApp your bank transfer screenshot to confirm your spot.</p>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
           
           <div className="pt-4 space-y-3">
-            <a 
-              href="https://wa.me/923390053713" 
-              target="_blank"
-              className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white px-8 py-4 text-lg font-bold rounded-2xl transition-all w-full"
-            >
-              <Phone className="w-5 h-5" />
-              Send Screenshot on WhatsApp
-            </a>
+            {!isFreeWorkshop && (
+              <a 
+                href="https://wa.me/923390053713" 
+                target="_blank"
+                className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white px-8 py-4 text-lg font-bold rounded-2xl transition-all w-full"
+              >
+                <Phone className="w-5 h-5" />
+                Send Screenshot on WhatsApp
+              </a>
+            )}
             <Button asChild variant="outline" className="border-white/10 hover:bg-white/5 text-white px-8 py-4 text-lg font-bold rounded-2xl w-full">
               <Link href="/">Return to Home</Link>
             </Button>
@@ -269,22 +285,24 @@ function RegisterContent() {
           </h1>
           <p className="text-white/40 text-sm md:text-base max-w-md mx-auto">
             {currentStep === 1 
-              ? "Fill in your information to proceed to payment." 
+              ? isFreeWorkshop ? "Fill in your information to confirm your free registration." : "Fill in your information to proceed to payment." 
               : "Transfer the amount and confirm your payment."}
           </p>
         </div>
 
         {/* Step Indicator */}
-        <div className="grid grid-cols-2 gap-3 max-w-xs mx-auto">
-          {[1, 2].map((step) => (
-            <div key={step} className="space-y-2">
-              <div className={`h-1.5 rounded-full transition-all duration-500 ${currentStep >= step ? 'bg-white' : 'bg-white/10'}`}></div>
-              <p className={`text-[10px] uppercase tracking-widest text-center font-bold ${currentStep >= step ? 'text-white' : 'text-white/20'}`}>
-                {step === 1 ? "Details" : "Payment"}
-              </p>
-            </div>
-          ))}
-        </div>
+        {!isFreeWorkshop && (
+          <div className="grid grid-cols-2 gap-3 max-w-xs mx-auto">
+            {[1, 2].map((step) => (
+              <div key={step} className="space-y-2">
+                <div className={`h-1.5 rounded-full transition-all duration-500 ${currentStep >= step ? 'bg-white' : 'bg-white/10'}`}></div>
+                <p className={`text-[10px] uppercase tracking-widest text-center font-bold ${currentStep >= step ? 'text-white' : 'text-white/20'}`}>
+                  {step === 1 ? "Details" : "Payment"}
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
 
         {/* Cohort Summary */}
         <Card className="bg-white/5 border-white/10 p-4 rounded-2xl">
@@ -301,7 +319,7 @@ function RegisterContent() {
               </div>
             </div>
             <div className="text-right">
-              <p className="font-bold text-lg">PKR {currentPrice.toLocaleString()}</p>
+              <p className="font-bold text-lg">{isFreeWorkshop ? "Free" : `PKR ${currentPrice.toLocaleString()}`}</p>
               {discountApplied && (
                 <p className="text-green-500 text-[10px] font-bold">PROMO APPLIED</p>
               )}
@@ -319,11 +337,17 @@ function RegisterContent() {
                 </div>
                 
                 <div className="space-y-4">
-                  {[
-                    "Fill out the registration form",
-                    "Send payment to the provided account",
-                    "Send the payment screenshot to the given phone number"
-                  ].map((step, index) => (
+                  {(isFreeWorkshop
+                    ? [
+                        "Fill out the registration form",
+                        "Submit your free registration",
+                        "Check your email for confirmation"
+                      ]
+                    : [
+                        "Fill out the registration form",
+                        "Send payment to the provided account",
+                        "Send the payment screenshot to the given phone number"
+                      ]).map((step, index) => (
                     <div key={index} className="flex items-start gap-4 p-4 bg-white/5 rounded-xl border border-white/5">
                       <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center shrink-0 font-bold text-sm">
                         {index + 1}
@@ -449,10 +473,16 @@ function RegisterContent() {
                 <Button 
                   type="submit"
                   className="w-full bg-white hover:bg-gray-100 text-black h-14 rounded-xl text-lg font-bold transition-all shadow-xl active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
-                  disabled={!formValid}
+                  disabled={!formValid || loading}
                 >
-                  Continue to Payment
-                  <ArrowRight className="w-5 h-5 ml-2" />
+                  {loading ? (
+                    <Loader2 className="w-5 h-5 animate-spin mr-2" />
+                  ) : (
+                    <>
+                      {isFreeWorkshop ? "Complete Free Registration" : "Continue to Payment"}
+                      <ArrowRight className="w-5 h-5 ml-2" />
+                    </>
+                  )}
                 </Button>
               </div>
             </form>
@@ -579,7 +609,7 @@ function RegisterContent() {
 
                 <div className="bg-yellow-500/10 border border-yellow-500/20 p-4 rounded-xl">
                   <p className="text-[11px] text-yellow-500/80 text-center leading-relaxed">
-                    <span className="font-bold uppercase">Important:</span> After transferring, click the button below to confirm. We'll send you an email with next steps.
+                    <span className="font-bold uppercase">Important:</span> After transferring, click the button below to confirm. We&apos;ll send you an email with next steps.
                   </p>
                 </div>
               </div>

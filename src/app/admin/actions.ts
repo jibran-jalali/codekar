@@ -313,6 +313,47 @@ export async function toggleAttendance(id: string, attended: boolean, completion
   return { success: true };
 }
 
+export async function bulkToggleAttendance(cohortId: string, attended: boolean, completion_date?: string) {
+  const updateData: { attended: boolean; completion_date?: string } = { attended };
+  if (completion_date) {
+    updateData.completion_date = completion_date;
+  }
+
+  const { error } = await supabase
+    .from("paid_enrollments")
+    .update(updateData)
+    .eq("cohort_id", cohortId);
+
+  if (error) {
+    return { success: false, error: error.message };
+  }
+  return { success: true };
+}
+
+export async function markCertificateSent(id: string, sent: boolean) {
+  const { error } = await supabase
+    .from("paid_enrollments")
+    .update({ certificate_sent: sent })
+    .eq("id", id);
+
+  if (error) {
+    return { success: false, error: error.message };
+  }
+  return { success: true };
+}
+
+export async function bulkMarkCertificatesSent(ids: string[], sent: boolean) {
+  const { error } = await supabase
+    .from("paid_enrollments")
+    .update({ certificate_sent: sent })
+    .in("id", ids);
+
+  if (error) {
+    return { success: false, error: error.message };
+  }
+  return { success: true };
+}
+
 export async function updateCompletionDate(id: string, completion_date: string) {
   const { error } = await supabase
     .from("paid_enrollments")

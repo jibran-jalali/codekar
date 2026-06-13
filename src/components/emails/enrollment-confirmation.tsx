@@ -29,7 +29,10 @@ export const EnrollmentConfirmationEmail = ({
   cohortTime,
   joiningType,
   pricePaid,
-}: EnrollmentEmailProps) => (
+}: EnrollmentEmailProps) => {
+  const isFreeRegistration = pricePaid <= 0;
+
+  return (
   <Html>
     <Head>
       <style>
@@ -47,7 +50,7 @@ export const EnrollmentConfirmationEmail = ({
         `}
       </style>
     </Head>
-    <Preview>Workshop Registration - Complete Your Payment</Preview>
+    <Preview>{isFreeRegistration ? "Workshop Registration Confirmed" : "Workshop Registration - Complete Your Payment"}</Preview>
     <Body style={main}>
       <Container style={container} className="container">
         <Section style={header}>
@@ -65,7 +68,9 @@ export const EnrollmentConfirmationEmail = ({
           <Heading style={h1}>Hi {name}!</Heading>
           
           <Text style={text}>
-            Thank you for registering for our workshop! Your registration request has been received. Please complete the payment to confirm your spot.
+            {isFreeRegistration
+              ? "Thank you for registering for our workshop! Your spot is confirmed and no payment is required."
+              : "Thank you for registering for our workshop! Your registration request has been received. Please complete the payment to confirm your spot."}
           </Text>
 
           <Section style={detailsBox}>
@@ -88,49 +93,60 @@ export const EnrollmentConfirmationEmail = ({
             </div>
             <div style={detailRow}>
               <Text style={detailLabel}>Amount:</Text>
-              <Text style={{...detailValue, color: '#ffffff', fontWeight: 'bold'}}>PKR {pricePaid.toLocaleString()}</Text>
+              <Text style={{...detailValue, color: '#ffffff', fontWeight: 'bold'}}>{isFreeRegistration ? "Free" : `PKR ${pricePaid.toLocaleString()}`}</Text>
             </div>
           </Section>
 
-          <Section style={paymentBox}>
-            <Heading style={h2}>Payment Instructions</Heading>
-            
-            <div style={paymentItem}>
-              <Text style={paymentLabel}>Bank</Text>
-              <Text style={paymentValue}>Meezan Bank- SHARAH-E-FAISALBR-KHI</Text>
-            </div>
+          {isFreeRegistration ? (
+            <Section style={confirmedBox}>
+              <Heading style={{...h3, color: '#22c55e'}}>Registration Confirmed</Heading>
+              <Text style={smallText}>
+                You are confirmed for this free workshop. Keep this email for your records and watch for any meeting or location details from the CodeKar team.
+              </Text>
+            </Section>
+          ) : (
+            <>
+              <Section style={paymentBox}>
+                <Heading style={h2}>Payment Instructions</Heading>
+                
+                <div style={paymentItem}>
+                  <Text style={paymentLabel}>Bank</Text>
+                  <Text style={paymentValue}>Meezan Bank- SHARAH-E-FAISALBR-KHI</Text>
+                </div>
 
-            <div style={paymentItem}>
-              <Text style={paymentLabel}>Account Title</Text>
-              <Text style={paymentValue}>JIBRAN JALALI</Text>
-            </div>
+                <div style={paymentItem}>
+                  <Text style={paymentLabel}>Account Title</Text>
+                  <Text style={paymentValue}>JIBRAN JALALI</Text>
+                </div>
 
-            <div style={paymentItem}>
-              <Text style={paymentLabel}>Account Number</Text>
-              <Text style={{...paymentValue, fontSize: '18px', letterSpacing: '1px'}}>01110110259540</Text>
-            </div>
+                <div style={paymentItem}>
+                  <Text style={paymentLabel}>Account Number</Text>
+                  <Text style={{...paymentValue, fontSize: '18px', letterSpacing: '1px'}}>01110110259540</Text>
+                </div>
 
-            <div style={paymentItem}>
-              <Text style={paymentLabel}>IBAN</Text>
-              <Text style={paymentValue}>PK75MEZN0001110110259540</Text>
-            </div>
-          </Section>
+                <div style={paymentItem}>
+                  <Text style={paymentLabel}>IBAN</Text>
+                  <Text style={paymentValue}>PK75MEZN0001110110259540</Text>
+                </div>
+              </Section>
 
-          <Section style={warningBox}>
-            <Heading style={{...h3, color: '#f59e0b'}}>Important Next Steps</Heading>
-            <Text style={smallText}>
-              1. Transfer **PKR {pricePaid.toLocaleString()}** to the account above.
-            </Text>
-            <Text style={smallText}>
-              2. Take a screenshot of the payment confirmation.
-            </Text>
-            <Text style={smallText}>
-              3. Send the screenshot to our WhatsApp: **+92 339 0053713**.
-            </Text>
-            <Text style={smallText}>
-              4. Wait for confirmation from our team.
-            </Text>
-          </Section>
+              <Section style={warningBox}>
+                <Heading style={{...h3, color: '#f59e0b'}}>Important Next Steps</Heading>
+                <Text style={smallText}>
+                  1. Transfer PKR {pricePaid.toLocaleString()} to the account above.
+                </Text>
+                <Text style={smallText}>
+                  2. Take a screenshot of the payment confirmation.
+                </Text>
+                <Text style={smallText}>
+                  3. Send the screenshot to our WhatsApp: +92 339 0053713.
+                </Text>
+                <Text style={smallText}>
+                  4. Wait for confirmation from our team.
+                </Text>
+              </Section>
+            </>
+          )}
         </Section>
 
         <Hr style={hr} />
@@ -148,7 +164,8 @@ export const EnrollmentConfirmationEmail = ({
       </Container>
     </Body>
   </Html>
-);
+  );
+};
 
 const main = {
   backgroundColor: "#000000",
@@ -284,6 +301,14 @@ const warningBox = {
   borderRadius: "16px",
   border: "1px solid rgba(245, 158, 11, 0.1)",
   borderLeft: "4px solid #f59e0b",
+};
+
+const confirmedBox = {
+  backgroundColor: "rgba(34, 197, 94, 0.08)",
+  padding: "24px",
+  borderRadius: "16px",
+  border: "1px solid rgba(34, 197, 94, 0.16)",
+  borderLeft: "4px solid #22c55e",
 };
 
 const smallText = {
