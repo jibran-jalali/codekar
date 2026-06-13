@@ -26,7 +26,7 @@ const Header = () => {
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled ? "bg-black/90 backdrop-blur-md border-b border-white/10" : "bg-transparent"
+        isScrolled ? "bg-black/70 backdrop-blur-2xl border-b border-white/10 shadow-lg" : "bg-transparent"
       }`}
       style={{ height: isScrolled ? "70px" : "90px" }}
     >
@@ -39,7 +39,7 @@ const Header = () => {
           >
             <Link href="/" className="flex items-center group">
                 <img 
-                  src="https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/render/image/public/document-uploads/Codekar-1766840680469.png?width=8000&height=8000&resize=contain" 
+                  src="https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/render/image/public/document-uploads/Codekar-1766840680469.png?width=400&height=400&resize=contain" 
                   alt="CodeKar Logo" 
                   className="h-20 md:h-32 w-auto object-contain transition-transform group-hover:scale-110"
                 />
@@ -90,17 +90,17 @@ const Header = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="lg:hidden flex items-center justify-center p-2.5 text-white border border-white/10 rounded-full bg-white/5 hover:bg-white/10 transition-all active:scale-90"
+          className="lg:hidden flex items-center justify-center p-3.5 text-white border border-white/10 rounded-full bg-white/5 hover:bg-white/10 transition-all active:scale-90"
           aria-label="Toggle menu"
         >
           <AnimatePresence mode="wait">
             {mobileMenuOpen ? (
               <motion.div key="close" initial={{ rotate: -90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: 90, opacity: 0 }}>
-                <X size={22} />
+                <X size={24} />
               </motion.div>
             ) : (
               <motion.div key="menu" initial={{ rotate: 90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: -90, opacity: 0 }}>
-                <Menu size={22} />
+                <Menu size={24} />
               </motion.div>
             )}
           </AnimatePresence>
@@ -115,7 +115,7 @@ const Header = () => {
             animate={{ opacity: 1, height: '100vh' }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-            className="lg:hidden fixed inset-0 bg-black z-40 overflow-hidden pt-[70px]"
+            className="lg:hidden fixed inset-0 bg-black/95 backdrop-blur-3xl z-40 overflow-hidden pt-[70px]"
           >
             <nav className="container mx-auto px-6 py-8">
               <ul className="flex flex-col gap-5">

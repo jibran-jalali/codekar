@@ -9,6 +9,7 @@ import CorporateWorkshopSection from "@/components/sections/corporate";
 import FinalCTA from "@/components/sections/final-cta";
 import Footer from "@/components/sections/footer";
 import ContactUs from "@/components/sections/contact-us";
+import CodeKarAIChat from "@/components/codekar-ai-chat";
 
 export default function Home() {
   return (
@@ -24,6 +25,7 @@ export default function Home() {
       <FinalCTA />
       <Footer />
       <ContactUs />
+      <CodeKarAIChat />
     </main>
   );
 }

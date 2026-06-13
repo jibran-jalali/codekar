@@ -34,7 +34,7 @@ const reviews = [
 const ReviewsSection = () => {
   return (
     <section id="reviews" className="w-full bg-white py-16 md:py-32 overflow-hidden">
-      <div className="container mx-auto px-4 md:px-8 lg:px-16 max-w-7xl">
+      <div className="container mx-auto px-5 md:px-8 lg:px-16 max-w-7xl">
           <div className="flex flex-col items-center text-center mb-10 md:mb-16">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -42,7 +42,7 @@ const ReviewsSection = () => {
               viewport={{ once: true }}
               className="inline-flex mb-4"
             >
-              <span className="bg-blue-50 text-blue-600 px-3 py-1.5 rounded-full text-[10px] sm:text-xs font-bold tracking-wider uppercase">
+              <span className="bg-blue-50 text-blue-600 px-3 py-1.5 rounded-full text-xs font-bold tracking-wider uppercase">
                 Wall of Love
               </span>
             </motion.div>
@@ -51,7 +51,7 @@ const ReviewsSection = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.1 }}
-              className="text-2xl sm:text-3xl md:text-5xl font-bold tracking-tight text-black leading-tight px-4"
+              className="text-3xl md:text-5xl font-bold tracking-tight text-black leading-tight px-4"
             >
               What our students say
             </motion.h2>
@@ -69,23 +69,23 @@ const ReviewsSection = () => {
               >
                 <div className="flex gap-1 mb-4 md:mb-6">
                   {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-3.5 h-3.5 sm:w-5 sm:h-5 fill-yellow-400 text-yellow-400" />
+                    <Star key={i} className="w-4 h-4 sm:w-5 sm:h-5 fill-yellow-400 text-yellow-400" />
                   ))}
                 </div>
                 
-                <Quote className="w-5 h-5 sm:w-8 sm:h-8 text-blue-200 mb-4" />
+                <Quote className="w-6 h-6 sm:w-8 sm:h-8 text-blue-200 mb-4" />
                 
-                <p className={`text-gray-700 leading-relaxed mb-6 md:mb-8 ${review.long ? 'text-sm sm:text-base md:text-lg' : 'text-base sm:text-lg md:text-xl font-medium italic'}`}>
-                  "{review.content}"
+                <p className={`text-gray-700 leading-relaxed mb-6 md:mb-8 ${review.long ? 'text-base md:text-lg' : 'text-lg md:text-xl font-medium italic'}`}>
+                  &quot;{review.content}&quot;
                 </p>
                 
                 <div className="flex items-center gap-3 md:gap-4 mt-auto">
-                  <div className="w-9 h-9 sm:w-12 sm:h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold text-base sm:text-xl">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold text-lg sm:text-xl">
                     {review.name[0]}
                   </div>
                   <div>
-                    <h4 className="font-bold text-gray-900 text-sm sm:text-base">{review.name}</h4>
-                    <p className="text-[10px] sm:text-sm text-gray-500">{review.role}</p>
+                    <h4 className="font-bold text-gray-900 text-base">{review.name}</h4>
+                    <p className="text-xs sm:text-sm text-gray-500">{review.role}</p>
                   </div>
                 </div>
               </motion.div>

@@ -55,7 +55,7 @@ const FAQSection = () => {
 
   return (
     <section id="faq" className="w-full py-16 md:py-24 bg-black text-white overflow-hidden">
-      <div className="container px-4 md:px-8 mx-auto max-w-[1280px]">
+      <div className="container px-5 md:px-8 mx-auto max-w-[1280px]">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-start">
           {/* Title Area */}
             <motion.div 
@@ -66,7 +66,7 @@ const FAQSection = () => {
               className="space-y-4 md:space-y-6 lg:col-span-5"
             >
               <div className="space-y-3 md:space-y-4">
-                <h2 className="text-2xl sm:text-3xl md:text-5xl font-bold tracking-tight text-white leading-tight">
+                <h2 className="text-3xl md:text-5xl font-bold tracking-tight text-white leading-tight">
                   Frequently Asked
                   <span className="block text-transparent bg-clip-text bg-gradient-to-r from-[#a3e635] to-[#1a2e05]">
                     Questions
@@ -93,13 +93,13 @@ const FAQSection = () => {
                     className="flex gap-4 py-6 md:py-8 border-t border-white/10 group last:border-b hover:bg-white/[0.02] transition-colors px-0 md:px-4 rounded-lg"
                   >
                   <div className="flex-shrink-0 pt-1">
-                    <ArrowRight className="w-4 h-4 md:w-6 md:h-6 text-[#a3e635] transition-transform duration-300 group-hover:translate-x-1" />
+                    <ArrowRight className="w-5 h-5 md:w-6 md:h-6 text-[#a3e635] transition-transform duration-300 group-hover:translate-x-1" />
                   </div>
                   <div className="space-y-2 md:space-y-3">
-                    <h3 className="text-lg md:text-2xl font-semibold text-white leading-tight transition-colors group-hover:text-[#a3e635]">
+                    <h3 className="text-xl md:text-2xl font-semibold text-white leading-tight transition-colors group-hover:text-[#a3e635]">
                       {faq.question}
                     </h3>
-                    <p className="text-sm md:text-lg text-white/70 leading-relaxed max-w-[640px]">
+                    <p className="text-base md:text-lg text-white/70 leading-relaxed max-w-[640px]">
                       {faq.answer}
                     </p>
                   </div>

@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 
 const Footer = () => {
   return (
@@ -8,19 +9,19 @@ const Footer = () => {
         <div className="flex flex-col items-start space-y-4">
           {/* Logo Section */}
             <div className="logo-container">
-              <a 
-                href="/" 
+              <Link
+                href="/"
                 className="logo-link flex items-center"
                 style={{
                   textDecoration: 'none'
                 }}
               >
                 <img 
-                  src="https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/render/image/public/document-uploads/Codekar-1766840680469.png?width=8000&height=8000&resize=contain" 
+                  src="https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/render/image/public/document-uploads/Codekar-1766840680469.png?width=400&height=400&resize=contain" 
                   alt="CodeKar Logo" 
                   className="h-8 w-auto object-contain"
                 />
-              </a>
+              </Link>
             </div>
 
           {/* Copyright Section */}

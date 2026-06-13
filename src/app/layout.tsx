@@ -3,7 +3,6 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
 import Script from "next/script";
-import CodeKarAIChat from "@/components/codekar-ai-chat";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -40,7 +39,6 @@ export default function RootLayout({
           data-orchids-project-id="af3cba43-be74-4f38-93a0-5902b069d318"
         />
         {children}
-        <CodeKarAIChat />
         <Toaster position="top-center" richColors />
       </body>
     </html>
