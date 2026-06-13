@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { Bot, CalendarDays, ChevronRight, MessageCircle, Minimize2, Send, Sparkles, X } from "lucide-react";
+import { Bot, CalendarDays, MessageCircle, Minimize2, Send, Sparkles, X } from "lucide-react";
 
 type ChatMessage = {
   role: "user" | "assistant";
@@ -24,17 +24,11 @@ type Cohort = {
 const starterMessages: ChatMessage[] = [
   {
     role: "assistant",
-    content:
-      "Hi, I am CodeKar AI. I can help you see cohorts, understand the chatbot workshop, book your seat, or find the right section on this page.",
+    content: "Hi, I am CodeKar AI. I can help with cohorts, booking, pricing, the refund guarantee, and what you will build.",
   },
 ];
 
-const quickActions = [
-  "Show active cohorts",
-  "Help me book",
-  "What will I build?",
-  "Refund guarantee",
-];
+const quickActions = ["Show cohorts", "Help me book", "What will I build?", "Refund"];
 
 function formatPrice(cohort: Cohort) {
   const price = cohort.sale_price || cohort.original_price;
@@ -49,12 +43,12 @@ export default function CodeKarAIChat() {
   const [cohorts, setCohorts] = useState<Cohort[]>([]);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  const visibleCohorts = useMemo(() => cohorts.slice(0, 3), [cohorts]);
+  const visibleCohorts = useMemo(() => cohorts.slice(0, 2), [cohorts]);
 
   useEffect(() => {
     if (!open) return;
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
-  }, [messages, open]);
+  }, [messages, cohorts, loading, open]);
 
   async function sendMessage(text: string) {
     const trimmed = text.trim();
@@ -119,7 +113,7 @@ export default function CodeKarAIChat() {
       <button
         type="button"
         onClick={openChat}
-        className={`fixed bottom-5 right-5 z-[80] flex items-center gap-3 rounded-full border border-white/15 bg-white text-black px-4 py-3 shadow-[0_20px_60px_rgba(0,0,0,0.45)] transition-all hover:scale-[1.03] active:scale-95 sm:bottom-6 sm:right-6 ${open ? "pointer-events-none translate-y-3 opacity-0" : "opacity-100"}`}
+        className={`fixed bottom-5 right-5 z-[80] flex items-center gap-3 rounded-full border border-white/15 bg-white px-4 py-3 text-black shadow-[0_20px_60px_rgba(0,0,0,0.45)] transition-all hover:scale-[1.03] active:scale-95 sm:bottom-6 sm:right-6 ${open ? "pointer-events-none translate-y-3 opacity-0" : "opacity-100"}`}
         aria-label="Open CodeKar AI chat"
       >
         <span className="flex h-10 w-10 items-center justify-center rounded-full bg-black text-white">
@@ -133,18 +127,18 @@ export default function CodeKarAIChat() {
       </button>
 
       {open && (
-        <div className="fixed inset-x-3 bottom-3 z-[90] sm:inset-auto sm:bottom-6 sm:right-6 sm:w-[410px]">
-          <div className="overflow-hidden rounded-[28px] border border-white/15 bg-[#0b0b0b]/95 text-white shadow-[0_30px_100px_rgba(0,0,0,0.7)] backdrop-blur-xl">
-            <div className="relative border-b border-white/10 bg-gradient-to-br from-white/[0.12] to-white/[0.04] p-4">
-              <div className="absolute right-10 top-0 h-24 w-24 rounded-full bg-[#a3e635]/10 blur-3xl" />
+        <div className="fixed inset-x-4 bottom-4 z-[90] sm:inset-auto sm:bottom-6 sm:right-6 sm:w-[380px]">
+          <div className="max-h-[calc(100vh-2rem)] overflow-hidden rounded-[24px] border border-white/15 bg-[#0b0b0b]/95 text-white shadow-[0_30px_100px_rgba(0,0,0,0.7)] backdrop-blur-xl">
+            <div className="relative border-b border-white/10 bg-gradient-to-br from-white/[0.1] to-white/[0.035] p-4">
+              <div className="absolute right-6 top-0 h-20 w-20 rounded-full bg-[#a3e635]/10 blur-3xl" />
               <div className="relative flex items-start justify-between gap-4">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white text-black shadow-lg">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white text-black shadow-lg">
                     <Sparkles className="h-5 w-5" />
                   </div>
                   <div>
                     <h2 className="text-base font-bold leading-tight">CodeKar AI</h2>
-                    <p className="text-xs text-white/60">Cohorts, booking, chatbot help</p>
+                    <p className="text-xs text-white/55">Ask, book, or check cohorts</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-1">
@@ -171,28 +165,11 @@ export default function CodeKarAIChat() {
               </div>
             </div>
 
-            <div ref={scrollRef} className="max-h-[52vh] min-h-[320px] space-y-4 overflow-y-auto p-4 sm:max-h-[500px]">
-              <div className="grid grid-cols-2 gap-2">
-                <Link href="/enroll" className="group rounded-2xl border border-white/10 bg-white/[0.06] p-3 transition hover:bg-white/[0.1]">
-                  <CalendarDays className="mb-2 h-4 w-4 text-[#a3e635]" />
-                  <span className="block text-xs font-bold">Open Enrollment</span>
-                  <span className="mt-1 flex items-center text-[11px] text-white/50">
-                    Pick a cohort <ChevronRight className="h-3 w-3 transition group-hover:translate-x-0.5" />
-                  </span>
-                </Link>
-                <a href="#faq" className="group rounded-2xl border border-white/10 bg-white/[0.06] p-3 transition hover:bg-white/[0.1]">
-                  <MessageCircle className="mb-2 h-4 w-4 text-[#a3e635]" />
-                  <span className="block text-xs font-bold">Jump to FAQs</span>
-                  <span className="mt-1 flex items-center text-[11px] text-white/50">
-                    Fast answers <ChevronRight className="h-3 w-3 transition group-hover:translate-x-0.5" />
-                  </span>
-                </a>
-              </div>
-
+            <div ref={scrollRef} className="chat-scrollbar max-h-[48vh] min-h-[300px] space-y-3 overflow-y-auto overflow-x-hidden p-4 pr-3 sm:max-h-[430px]">
               {messages.map((message, index) => (
                 <div key={`${message.role}-${index}`} className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}>
                   <div
-                    className={`max-w-[86%] whitespace-pre-wrap rounded-2xl px-4 py-3 text-sm leading-relaxed ${
+                    className={`max-w-[88%] whitespace-pre-wrap rounded-2xl px-4 py-3 text-sm leading-relaxed ${
                       message.role === "user"
                         ? "bg-white text-black"
                         : "border border-white/10 bg-white/[0.06] text-white/85"
@@ -204,20 +181,20 @@ export default function CodeKarAIChat() {
               ))}
 
               {visibleCohorts.length > 0 && (
-                <div className="space-y-2 rounded-3xl border border-white/10 bg-black/40 p-3">
-                  <p className="px-1 text-xs font-bold uppercase tracking-[0.18em] text-white/45">Active cohorts</p>
+                <div className="space-y-2 rounded-2xl border border-white/10 bg-black/35 p-3">
+                  <p className="px-1 text-[11px] font-bold uppercase tracking-[0.16em] text-white/40">Active cohorts</p>
                   {visibleCohorts.map((cohort) => (
                     <Link
                       key={cohort.id}
                       href="/enroll"
                       className="block rounded-2xl bg-white/[0.06] p-3 transition hover:bg-white/[0.1]"
                     >
-                      <div className="flex items-start justify-between gap-3">
-                        <div>
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="min-w-0">
                           <p className="text-sm font-bold">{cohort.name || "CodeKar Cohort"}</p>
-                          <p className="mt-1 text-xs text-white/55">{cohort.dates || "Dates TBA"} · {cohort.time || "Time TBA"}</p>
+                          <p className="mt-1 truncate text-xs text-white/55">{cohort.dates || "Dates TBA"} - {cohort.time || "Time TBA"}</p>
                         </div>
-                        <span className="rounded-full bg-[#a3e635] px-2.5 py-1 text-[11px] font-bold text-black">
+                        <span className="shrink-0 rounded-full bg-[#a3e635] px-2.5 py-1 text-[11px] font-bold text-black">
                           {formatPrice(cohort)}
                         </span>
                       </div>
@@ -236,18 +213,30 @@ export default function CodeKarAIChat() {
             </div>
 
             <div className="border-t border-white/10 p-3">
-              <div className="mb-3 flex gap-2 overflow-x-auto pb-1">
+              <div className="no-scrollbar mb-3 grid grid-cols-2 gap-2 sm:flex sm:overflow-x-auto sm:pb-1">
                 {quickActions.map((action) => (
                   <button
                     key={action}
                     type="button"
                     onClick={() => sendMessage(action)}
-                    className="shrink-0 rounded-full border border-white/10 bg-white/[0.06] px-3 py-2 text-xs font-medium text-white/75 transition hover:bg-white/[0.1] hover:text-white"
+                    className="min-w-0 rounded-full border border-white/10 bg-white/[0.06] px-3 py-2 text-xs font-medium text-white/75 transition hover:bg-white/[0.1] hover:text-white sm:shrink-0"
                   >
                     {action}
                   </button>
                 ))}
               </div>
+
+              <div className="mb-3 grid grid-cols-2 gap-2">
+                <Link href="/enroll" className="flex items-center justify-center gap-2 rounded-full bg-white px-3 py-2.5 text-xs font-bold text-black transition hover:bg-gray-100">
+                  <CalendarDays className="h-3.5 w-3.5" />
+                  Open Enrollment
+                </Link>
+                <a href="#faq" className="flex items-center justify-center gap-2 rounded-full border border-white/10 bg-white/[0.06] px-3 py-2.5 text-xs font-bold text-white/80 transition hover:bg-white/[0.1]">
+                  <MessageCircle className="h-3.5 w-3.5" />
+                  FAQs
+                </a>
+              </div>
+
               <form
                 onSubmit={(event) => {
                   event.preventDefault();
@@ -266,7 +255,7 @@ export default function CodeKarAIChat() {
                   }}
                   rows={1}
                   placeholder="Ask about cohorts, booking, refund..."
-                  className="max-h-28 min-h-10 flex-1 resize-none bg-transparent px-2 py-2 text-sm text-white outline-none placeholder:text-white/35"
+                  className="max-h-24 min-h-10 flex-1 resize-none overflow-y-auto bg-transparent px-2 py-2 text-sm text-white outline-none placeholder:text-white/35"
                 />
                 <button
                   type="submit"
