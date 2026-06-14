@@ -47,6 +47,19 @@ export const EnrollmentConfirmationEmail = ({
           <InfoRow label="Amount" value={isFreeRegistration ? "Free" : `PKR ${pricePaid.toLocaleString()}`} />
         </div>
 
+        {hasLinks && (
+          <div style={successPanel}>
+            <h2 style={sectionTitle}>Joining Links</h2>
+            <p style={bodyText}>
+              Use the links below to join the session or stay connected with the cohort.
+            </p>
+            <div style={buttonRow}>
+              {meetingLink && <a href={meetingLink} style={primaryButton}>Open Meeting Link</a>}
+              {whatsappGroupLink && <a href={whatsappGroupLink} style={whatsappButton}>Join WhatsApp Group</a>}
+            </div>
+          </div>
+        )}
+
         {isFreeRegistration && (
           <div style={successPanel}>
             <h2 style={sectionTitle}>Next Step</h2>
@@ -55,12 +68,6 @@ export const EnrollmentConfirmationEmail = ({
                 ? "Use the links below to join the session and stay connected with the cohort."
                 : "The CodeKar team will share final joining links before the workshop starts."}
             </p>
-            {hasLinks && (
-              <div style={buttonRow}>
-                {meetingLink && <a href={meetingLink} style={primaryButton}>Open Meeting Link</a>}
-                {whatsappGroupLink && <a href={whatsappGroupLink} style={whatsappButton}>Join WhatsApp Group</a>}
-              </div>
-            )}
           </div>
         )}
 
@@ -105,7 +112,7 @@ function Footer() {
   );
 }
 
-const page = { margin: "0", padding: "32px 12px", backgroundColor: "#050505", fontFamily: "Arial, sans-serif" };
+const page = { margin: "0", padding: "32px 12px", backgroundColor: "#ffffff", fontFamily: "Arial, sans-serif" };
 const card = { maxWidth: "620px", margin: "0 auto", backgroundColor: "#0b0b0f", color: "#ffffff", borderRadius: "28px", overflow: "hidden", border: "1px solid #1f2937" };
 const hero = { padding: "36px 32px", textAlign: "center" as const, backgroundColor: "#050505" };
 const logo = { width: "96px", height: "96px", objectFit: "contain" as const, borderRadius: "999px", backgroundColor: "#ffffff", marginBottom: "18px" };

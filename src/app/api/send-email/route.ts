@@ -21,6 +21,8 @@ export async function POST(req: Request) {
         cohortTime: data.cohortTime,
         joiningType: data.joiningType || "online",
         pricePaid: data.pricePaid,
+        meetingLink: data.meetingLink,
+        whatsappGroupLink: data.whatsappGroupLink,
       });
       subject = `Registration Received: ${data.cohortName}`;
     } else if (type === "waitlist") {
@@ -36,6 +38,8 @@ export async function POST(req: Request) {
         cohortDates: data.cohortDates,
         cohortTime: data.cohortTime,
         joiningType: data.joiningType || "online",
+        meetingLink: data.meetingLink,
+        whatsappGroupLink: data.whatsappGroupLink,
       });
       subject = `Payment Confirmed: Spot Secured for ${data.cohortName}`;
     } else {
@@ -54,8 +58,9 @@ return NextResponse.json({ error: result.error }, { status: 400 });
 
 return NextResponse.json({ success: true });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error sending email:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    const message = error instanceof Error ? error.message : "Unknown error";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
