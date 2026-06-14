@@ -654,12 +654,23 @@ const ADMIN_TABS: AdminTab[] = ["cohorts", "enrollments", "waitlist", "promocode
             }),
           });
 
-          return { id: enrollment.id, ok: response.ok };
+          let errorMessage = "";
+          if (!response.ok) {
+            try {
+              const payload = await response.json();
+              errorMessage = payload?.error || "";
+            } catch {
+              errorMessage = await response.text();
+            }
+          }
+
+          return { id: enrollment.id, ok: response.ok, errorMessage };
         })
       );
 
       const successfulIds = results.filter(result => result.ok).map(result => result.id);
       const failedCount = results.length - successfulIds.length;
+      const firstFailure = results.find(result => !result.ok);
 
       if (successfulIds.length > 0) {
         await bulkMarkCertificatesSent(successfulIds, true);
@@ -669,7 +680,8 @@ const ADMIN_TABS: AdminTab[] = ["cohorts", "enrollments", "waitlist", "promocode
         toast.success("Certificates sent successfully", { id: toastId });
         setSelectedIds([]);
       } else {
-        toast.error(`${failedCount} certificate${failedCount === 1 ? "" : "s"} failed to send`, { id: toastId });
+        const detail = firstFailure?.errorMessage ? `: ${firstFailure.errorMessage}` : "";
+        toast.error(`${failedCount} certificate${failedCount === 1 ? "" : "s"} failed to send${detail}`, { id: toastId });
       }
 
       loadData();

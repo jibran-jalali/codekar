@@ -64,30 +64,52 @@ export async function POST(req: Request) {
     baseUrl = baseUrl.replace(/\/$/, "");
 
     const hasCertificateImage = typeof certificateImage === "string" && certificateImage.trim().length > 0;
-    const buffer = hasCertificateImage
-      ? Buffer.from(certificateImage.replace(/^data:image\/\w+;base64,/, ""), "base64")
-      : Buffer.from(createCertificateSvg({ name, certificateId, cohortName, customDate }), "utf8");
-    const filename = hasCertificateImage ? `Certificate-${name}.png` : `Certificate-${name}.svg`;
+    const sanitizedName = String(name || "Student").replace(/[\\/:*?"<>|]+/g, "-").slice(0, 80);
+    let attachmentBuffer: Buffer;
+    let attachmentFilename: string;
+    let attachmentContentType: string;
+
+    if (hasCertificateImage) {
+      const base64Data = certificateImage.replace(/^data:image\/\w+;base64,/, "");
+      const imageBuffer = Buffer.from(base64Data, "base64");
+
+      if (imageBuffer.length > 0 && imageBuffer.length < 1200000) {
+        attachmentBuffer = imageBuffer;
+        attachmentFilename = `Certificate-${sanitizedName}.png`;
+        attachmentContentType = "image/png";
+      } else {
+        attachmentBuffer = Buffer.from(createCertificateSvg({ name, certificateId, cohortName, customDate }), "utf8");
+        attachmentFilename = `Certificate-${sanitizedName}.svg`;
+        attachmentContentType = "image/svg+xml";
+      }
+    } else {
+      attachmentBuffer = Buffer.from(createCertificateSvg({ name, certificateId, cohortName, customDate }), "utf8");
+      attachmentFilename = `Certificate-${sanitizedName}.svg`;
+      attachmentContentType = "image/svg+xml";
+    }
 
     const feedbackLink = `${baseUrl}/feedback?id=${enrollmentId}&name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}`;
 
-const result = await sendEmail({
-to: email,
-subject: `Your Certificate of Completion - ${name}`,
-react: React.createElement(CertificateEmail, { name, feedbackLink }),
-attachments: [
-{
-filename,
-content: buffer,
-},
-],
-});
+    const result = await sendEmail({
+      to: email,
+      subject: `Your Certificate of Completion - ${name}`,
+      react: React.createElement(CertificateEmail, { name, feedbackLink }),
+      attachments: [
+        {
+          filename: attachmentFilename,
+          content: attachmentBuffer,
+          contentType: attachmentContentType,
+        },
+      ],
+    });
 
-if (result.error) {
-return NextResponse.json({ error: result.error }, { status: 400 });
-}
+    if (result.error) {
+      const message = result.error instanceof Error ? result.error.message : "Failed to send certificate email";
+      console.error("Certificate email send failed:", message);
+      return NextResponse.json({ error: message }, { status: 400 });
+    }
 
-return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true });
 
   } catch (error: unknown) {
     console.error("Error sending certificate:", error);
