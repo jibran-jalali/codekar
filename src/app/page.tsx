@@ -1,5 +1,6 @@
 import Header from "@/components/sections/header";
 import HeroSection from "@/components/sections/hero";
+import HeroBridgeSection from "@/components/sections/hero-bridge";
 import GallerySlider from "@/components/sections/gallery-slider";
 import WhatYouNeed from "@/components/sections/what-you-need";
 import ReviewsSection from "@/components/sections/reviews";
@@ -16,6 +17,7 @@ export default function Home() {
     <main className="min-h-screen bg-background">
       <Header />
       <HeroSection />
+      <HeroBridgeSection />
       <GallerySlider />
       <WhatYouNeed />
       <ReviewsSection />
