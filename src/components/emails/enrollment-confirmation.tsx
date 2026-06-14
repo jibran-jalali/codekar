@@ -1,18 +1,3 @@
-import {
-  Body,
-  Container,
-  Head,
-  Heading,
-  Hr,
-  Html,
-  Img,
-  Link,
-  Preview,
-  Section,
-  Text,
-} from "@react-email/components";
-import * as React from "react";
-
 interface EnrollmentEmailProps {
   name: string;
   cohortName: string;
@@ -34,369 +19,112 @@ export const EnrollmentConfirmationEmail = ({
   meetingLink,
   whatsappGroupLink,
 }: EnrollmentEmailProps) => {
+  const logoUrl =
+    "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/render/image/public/document-uploads/Codekar-1766840680469.png?width=400&height=400&resize=contain";
   const isFreeRegistration = pricePaid <= 0;
-  const hasFreeWorkshopLinks = Boolean(meetingLink || whatsappGroupLink);
+  const hasLinks = Boolean(meetingLink || whatsappGroupLink);
 
   return (
-  <Html>
-    <Head>
-      <style>
-        {`
-          :root { color-scheme: dark; supported-color-schemes: dark; }
-          body { background-color: #000000 !important; }
-          .container { background-color: #0a0a0a !important; }
-          @media only screen and (max-width: 600px) {
-            .container {
-              width: 100% !important;
-              padding: 20px !important;
-              border-radius: 0 !important;
-            }
-          }
-        `}
-      </style>
-    </Head>
-    <Preview>{isFreeRegistration ? "Workshop Registration Confirmed" : "Workshop Registration - Complete Your Payment"}</Preview>
-    <Body style={main}>
-      <Container style={container} className="container">
-        <Section style={header}>
-          <Img
-            src="https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/render/image/public/document-uploads/Codekar-1766840680469.png?width=400&height=400&resize=contain"
-            width="120"
-            height="auto"
-            alt="CodeKar"
-            style={logo}
-          />
-          <Text style={badge}>Workshop Registration</Text>
-        </Section>
-
-        <Section style={content}>
-          <Heading style={h1}>Hi {name}!</Heading>
-          
-          <Text style={text}>
+    <div style={page}>
+      <div style={card}>
+        <div style={hero}>
+          <img src={logoUrl} alt="CodeKar" style={logo} />
+          <p style={eyebrow}>{isFreeRegistration ? "Registration confirmed" : "Enrollment received"}</p>
+          <h1 style={title}>Hi {name}, your seat is {isFreeRegistration ? "confirmed" : "almost confirmed"}.</h1>
+          <p style={lead}>
             {isFreeRegistration
-              ? "Thank you for registering for our workshop! Your spot is confirmed and no payment is required."
-              : "Thank you for registering for our workshop! Your registration request has been received. Please complete the payment to confirm your spot."}
-          </Text>
+              ? "You are registered for the free workshop. Save the details below."
+              : "We received your registration. Complete payment to lock in your seat."}
+          </p>
+        </div>
 
-          <Section style={detailsBox}>
-            <Heading style={h3}>Workshop Details</Heading>
-            <div style={detailRow}>
-              <Text style={detailLabel}>Workshop:</Text>
-              <Text style={detailValue}>{cohortName}</Text>
-            </div>
-            <div style={detailRow}>
-              <Text style={detailLabel}>Dates:</Text>
-              <Text style={detailValue}>{cohortDates}</Text>
-            </div>
-            <div style={detailRow}>
-              <Text style={detailLabel}>Time:</Text>
-              <Text style={detailValue}>{cohortTime}</Text>
-            </div>
-            <div style={detailRow}>
-              <Text style={detailLabel}>Format:</Text>
-              <Text style={{...detailValue, textTransform: 'capitalize'}}>{joiningType === 'inperson' ? 'In-person' : joiningType}</Text>
-            </div>
-            <div style={detailRow}>
-              <Text style={detailLabel}>Amount:</Text>
-              <Text style={{...detailValue, color: '#ffffff', fontWeight: 'bold'}}>{isFreeRegistration ? "Free" : `PKR ${pricePaid.toLocaleString()}`}</Text>
-            </div>
-          </Section>
+        <div style={panel}>
+          <h2 style={sectionTitle}>Workshop Details</h2>
+          <InfoRow label="Workshop" value={cohortName} />
+          <InfoRow label="Dates" value={cohortDates} />
+          <InfoRow label="Time" value={cohortTime} />
+          <InfoRow label="Format" value={joiningType === "inperson" ? "In-person" : "Online"} />
+          <InfoRow label="Amount" value={isFreeRegistration ? "Free" : `PKR ${pricePaid.toLocaleString()}`} />
+        </div>
 
-          {isFreeRegistration ? (
-            <Section style={confirmedBox}>
-              <Heading style={{...h3, color: '#22c55e'}}>Registration Confirmed</Heading>
-              <Text style={smallText}>
-                You are confirmed for this free workshop. Use the links below to join the live session and the student WhatsApp group.
-              </Text>
-              {hasFreeWorkshopLinks && (
-                <Section style={linkButtonWrap}>
-                  {meetingLink && (
-                    <Link href={meetingLink} style={primaryLinkButton}>
-                      Join Webinar
-                    </Link>
-                  )}
-                  {whatsappGroupLink && (
-                    <Link href={whatsappGroupLink} style={secondaryLinkButton}>
-                      Join WhatsApp Group
-                    </Link>
-                  )}
-                </Section>
-              )}
-              {!hasFreeWorkshopLinks && (
-                <Text style={smallText}>
-                  The CodeKar team will share the joining links before the workshop starts.
-                </Text>
-              )}
-            </Section>
-          ) : (
-            <>
-              <Section style={paymentBox}>
-                <Heading style={h2}>Payment Instructions</Heading>
-                
-                <div style={paymentItem}>
-                  <Text style={paymentLabel}>Bank</Text>
-                  <Text style={paymentValue}>Meezan Bank- SHARAH-E-FAISALBR-KHI</Text>
-                </div>
-
-                <div style={paymentItem}>
-                  <Text style={paymentLabel}>Account Title</Text>
-                  <Text style={paymentValue}>JIBRAN JALALI</Text>
-                </div>
-
-                <div style={paymentItem}>
-                  <Text style={paymentLabel}>Account Number</Text>
-                  <Text style={{...paymentValue, fontSize: '18px', letterSpacing: '1px'}}>01110110259540</Text>
-                </div>
-
-                <div style={paymentItem}>
-                  <Text style={paymentLabel}>IBAN</Text>
-                  <Text style={paymentValue}>PK75MEZN0001110110259540</Text>
-                </div>
-              </Section>
-
-              <Section style={warningBox}>
-                <Heading style={{...h3, color: '#f59e0b'}}>Important Next Steps</Heading>
-                <Text style={smallText}>
-                  1. Transfer PKR {pricePaid.toLocaleString()} to the account above.
-                </Text>
-                <Text style={smallText}>
-                  2. Take a screenshot of the payment confirmation.
-                </Text>
-                <Text style={smallText}>
-                  3. Send the screenshot to our WhatsApp: +92 339 0053713.
-                </Text>
-                <Text style={smallText}>
-                  4. Wait for confirmation from our team.
-                </Text>
-              </Section>
-            </>
-          )}
-        </Section>
-
-        <Hr style={hr} />
-
-        <Section style={footer}>
-          <Text style={footerText}>
-            © 2025 CodeKar. All rights reserved.
-          </Text>
-          <div style={socialLinks}>
-            <Link href="https://wa.me/923390053713" style={socialLink}>WhatsApp</Link>
-            <span style={dot}>•</span>
-            <Link href="https://instagram.com/codekar_" style={socialLink}>Instagram</Link>
+        {isFreeRegistration && (
+          <div style={successPanel}>
+            <h2 style={sectionTitle}>Next Step</h2>
+            <p style={bodyText}>
+              {hasLinks
+                ? "Use the links below to join the session and stay connected with the cohort."
+                : "The CodeKar team will share final joining links before the workshop starts."}
+            </p>
+            {hasLinks && (
+              <div style={buttonRow}>
+                {meetingLink && <a href={meetingLink} style={primaryButton}>Open Meeting Link</a>}
+                {whatsappGroupLink && <a href={whatsappGroupLink} style={whatsappButton}>Join WhatsApp Group</a>}
+              </div>
+            )}
           </div>
-        </Section>
-      </Container>
-    </Body>
-  </Html>
+        )}
+
+        {!isFreeRegistration && (
+          <div style={paymentPanel}>
+            <h2 style={sectionTitle}>Payment Instructions</h2>
+            <InfoRow label="Bank" value="Meezan Bank - Sharah-e-Faisal" />
+            <InfoRow label="Account Title" value="Jibran Jalali" />
+            <InfoRow label="Account No." value="01110110259540" />
+            <InfoRow label="IBAN" value="PK75MEZN0001110110259540" />
+            <div style={stepsBox}>
+              <p style={bodyText}>1. Transfer the amount shown above.</p>
+              <p style={bodyText}>2. Take a screenshot of your payment receipt.</p>
+              <p style={bodyText}>3. Send it on WhatsApp: +92 339 0053713.</p>
+            </div>
+          </div>
+        )}
+
+        <Footer />
+      </div>
+    </div>
   );
 };
 
-const main = {
-  backgroundColor: "#000000",
-  fontFamily:
-    '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Ubuntu,sans-serif',
-  padding: "40px 0",
-};
+function InfoRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div style={infoRow}>
+      <span style={infoLabel}>{label}</span>
+      <span style={infoValue}>{value || "TBA"}</span>
+    </div>
+  );
+}
 
-const container = {
-  backgroundColor: "#0a0a0a",
-  margin: "0 auto",
-  padding: "40px",
-  borderRadius: "24px",
-  border: "1px solid #1a1a1a",
-  maxWidth: "600px",
-};
+function Footer() {
+  return (
+    <div style={footer}>
+      <p style={footerText}>Need help? Reach out anytime.</p>
+      <a href="https://wa.me/923390053713" style={footerLink}>WhatsApp</a>
+      <a href="https://instagram.com/codekar_" style={footerLink}>Instagram</a>
+      <p style={copyright}>© 2026 CodeKar. All rights reserved.</p>
+    </div>
+  );
+}
 
-const header = {
-  textAlign: "center" as const,
-  marginBottom: "32px",
-};
-
-const logo = {
-  margin: "0 auto 16px",
-  display: "block",
-};
-
-const badge = {
-  color: "#888",
-  fontSize: "12px",
-  fontWeight: "bold",
-  textTransform: "uppercase" as const,
-  letterSpacing: "2px",
-  margin: "0",
-};
-
-const content = {
-  padding: "0 20px",
-};
-
-const h1 = {
-  color: "#ffffff",
-  fontSize: "28px",
-  fontWeight: "bold",
-  textAlign: "center" as const,
-  margin: "0 0 24px 0",
-};
-
-const h2 = {
-  color: "#ffffff",
-  fontSize: "20px",
-  fontWeight: "bold",
-  margin: "0 0 20px 0",
-};
-
-const h3 = {
-  color: "#ffffff",
-  fontSize: "18px",
-  fontWeight: "bold",
-  margin: "0 0 16px 0",
-};
-
-const text = {
-  color: "#bbbbbb",
-  fontSize: "16px",
-  lineHeight: "26px",
-  textAlign: "left" as const,
-  margin: "0 0 24px 0",
-};
-
-const detailsBox = {
-  backgroundColor: "#111",
-  padding: "24px",
-  borderRadius: "16px",
-  border: "1px solid #1a1a1a",
-  marginBottom: "24px",
-};
-
-const detailRow = {
-  display: 'flex',
-  justifyContent: 'space-between',
-  marginBottom: '8px',
-};
-
-const detailLabel = {
-  color: "#666",
-  fontSize: "14px",
-  margin: "0",
-  width: "100px",
-};
-
-const detailValue = {
-  color: "#bbb",
-  fontSize: "14px",
-  margin: "0",
-  flex: "1",
-};
-
-const paymentBox = {
-  backgroundColor: "#111",
-  padding: "24px",
-  borderRadius: "16px",
-  border: "1px solid #1a1a1a",
-  marginBottom: "24px",
-};
-
-const paymentItem = {
-  backgroundColor: "#1a1a1a",
-  padding: "16px",
-  borderRadius: "12px",
-  border: "1px solid #222",
-  marginBottom: "12px",
-};
-
-const paymentLabel = {
-  color: "#666",
-  fontSize: "11px",
-  textTransform: "uppercase" as const,
-  letterSpacing: "1px",
-  margin: "0 0 4px 0",
-};
-
-const paymentValue = {
-  color: "#fff",
-  fontSize: "15px",
-  fontWeight: "bold",
-  margin: "0",
-};
-
-const warningBox = {
-  backgroundColor: "rgba(245, 158, 11, 0.05)",
-  padding: "24px",
-  borderRadius: "16px",
-  border: "1px solid rgba(245, 158, 11, 0.1)",
-  borderLeft: "4px solid #f59e0b",
-};
-
-const confirmedBox = {
-  backgroundColor: "rgba(34, 197, 94, 0.08)",
-  padding: "24px",
-  borderRadius: "16px",
-  border: "1px solid rgba(34, 197, 94, 0.16)",
-  borderLeft: "4px solid #22c55e",
-};
-
-const linkButtonWrap = {
-  marginTop: "20px",
-};
-
-const primaryLinkButton = {
-  backgroundColor: "#22c55e",
-  color: "#000000",
-  padding: "12px 18px",
-  borderRadius: "10px",
-  fontSize: "14px",
-  fontWeight: "bold",
-  textDecoration: "none",
-  display: "inline-block",
-  margin: "0 8px 10px 0",
-};
-
-const secondaryLinkButton = {
-  backgroundColor: "#ffffff",
-  color: "#000000",
-  padding: "12px 18px",
-  borderRadius: "10px",
-  fontSize: "14px",
-  fontWeight: "bold",
-  textDecoration: "none",
-  display: "inline-block",
-  margin: "0 8px 10px 0",
-};
-
-const smallText = {
-  color: "#aaa",
-  fontSize: "14px",
-  lineHeight: "22px",
-  margin: "0 0 8px 0",
-};
-
-const hr = {
-  borderColor: "#1a1a1a",
-  margin: "40px 0 20px",
-};
-
-const footer = {
-  textAlign: "center" as const,
-};
-
-const footerText = {
-  color: "#444",
-  fontSize: "12px",
-  margin: "0 0 12px 0",
-};
-
-const socialLinks = {
-  marginBottom: "16px",
-};
-
-const socialLink = {
-  color: "#888",
-  fontSize: "13px",
-  textDecoration: "none",
-  margin: "0 8px",
-};
-
-const dot = {
-  color: "#222",
-  fontSize: "13px",
-};
+const page = { margin: "0", padding: "32px 12px", backgroundColor: "#050505", fontFamily: "Arial, sans-serif" };
+const card = { maxWidth: "620px", margin: "0 auto", backgroundColor: "#0b0b0f", color: "#ffffff", borderRadius: "28px", overflow: "hidden", border: "1px solid #24243a" };
+const hero = { padding: "36px 32px", textAlign: "center" as const, background: "linear-gradient(135deg,#050505,#111827 45%,#312e81)" };
+const logo = { width: "96px", height: "96px", objectFit: "contain" as const, borderRadius: "999px", backgroundColor: "#ffffff", marginBottom: "18px" };
+const eyebrow = { margin: "0 0 12px", color: "#93c5fd", fontSize: "12px", fontWeight: "bold", letterSpacing: "2px", textTransform: "uppercase" as const };
+const title = { margin: "0", color: "#ffffff", fontSize: "30px", lineHeight: "38px", fontWeight: "800" };
+const lead = { margin: "16px auto 0", maxWidth: "470px", color: "#d1d5db", fontSize: "16px", lineHeight: "25px" };
+const panel = { margin: "28px 28px 0", padding: "24px", backgroundColor: "#111118", border: "1px solid #24243a", borderRadius: "20px" };
+const successPanel = { margin: "18px 28px 0", padding: "24px", background: "linear-gradient(135deg,rgba(34,197,94,.12),rgba(34,211,238,.08))", border: "1px solid rgba(34,197,94,.24)", borderRadius: "20px" };
+const paymentPanel = { margin: "18px 28px 0", padding: "24px", background: "linear-gradient(135deg,rgba(245,158,11,.10),rgba(255,255,255,.04))", border: "1px solid rgba(245,158,11,.20)", borderRadius: "20px" };
+const sectionTitle = { margin: "0 0 16px", color: "#ffffff", fontSize: "18px", lineHeight: "24px" };
+const infoRow = { display: "flex", justifyContent: "space-between", gap: "16px", padding: "12px 0", borderBottom: "1px solid #202233" };
+const infoLabel = { color: "#8b95a7", fontSize: "13px", fontWeight: "bold" };
+const infoValue = { color: "#ffffff", fontSize: "14px", textAlign: "right" as const };
+const bodyText = { margin: "0 0 10px", color: "#c7cedd", fontSize: "14px", lineHeight: "23px" };
+const stepsBox = { marginTop: "18px", padding: "16px", backgroundColor: "rgba(0,0,0,.22)", borderRadius: "14px", border: "1px solid rgba(255,255,255,.08)" };
+const buttonRow = { marginTop: "14px" };
+const primaryButton = { display: "inline-block", margin: "0 10px 10px 0", padding: "13px 18px", backgroundColor: "#ffffff", color: "#000000", borderRadius: "12px", textDecoration: "none", fontWeight: "bold", fontSize: "14px" };
+const whatsappButton = { display: "inline-block", margin: "0 10px 10px 0", padding: "13px 18px", backgroundColor: "#22c55e", color: "#031208", borderRadius: "12px", textDecoration: "none", fontWeight: "bold", fontSize: "14px" };
+const footer = { padding: "28px", textAlign: "center" as const };
+const footerText = { margin: "0 0 12px", color: "#8b95a7", fontSize: "13px" };
+const footerLink = { margin: "0 8px", color: "#e5e7eb", fontSize: "13px", textDecoration: "none", fontWeight: "bold" };
+const copyright = { margin: "18px 0 0", color: "#555b6b", fontSize: "11px" };

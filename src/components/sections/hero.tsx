@@ -20,7 +20,11 @@ import { motion } from 'framer-motion';
  * - Dark CTA button with inner arrow icon
  * - Large rounded workshop image with testimonial card overlay
  */
-const HeroSection: React.FC = () => {
+type HeroSectionProps = {
+  guaranteeText: string;
+};
+
+const HeroSection: React.FC<HeroSectionProps> = ({ guaranteeText }) => {
   return (
     <section className="relative bg-[#0a0a0a] min-h-screen flex items-center pt-20 pb-12 md:pt-32 md:pb-24 overflow-hidden">
       {/* Background Glow */}
@@ -45,7 +49,9 @@ const HeroSection: React.FC = () => {
                 className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 border border-white/20"
               >
                 <div className="w-2 h-2 bg-[#a3e635] rounded-full animate-pulse shadow-[0_0_8px_rgba(163,230,53,0.8)]"></div>
-                <span className="text-white text-xs sm:text-sm font-medium tracking-tight">Workshops Open</span>
+                <span className="text-white text-xs sm:text-sm font-medium tracking-tight">
+                  {guaranteeText}
+                </span>
               </motion.div>
 
                 {/* Headline */}

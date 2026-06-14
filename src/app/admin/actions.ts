@@ -6,6 +6,7 @@ import {
   sendMeetingInvitationEmail,
   sendLocationInvitationEmail
 } from "@/lib/mail";
+import { DEFAULT_ENROLLMENT_GUARANTEE_TEXT, ENROLLMENT_GUARANTEE_TEXT_KEY } from "@/lib/site-copy";
 
 export async function getAllCohorts() {
   const { data: cohorts, error: cohortsError } = await supabase
@@ -240,6 +241,7 @@ export async function markEnrollmentPaid(id: string) {
       promo_code: enrollment.promo_code,
       price_paid: enrollment.price_paid,
       profession: enrollment.profession,
+      ai_experience_level: enrollment.ai_experience_level,
       joining_type: enrollment.joining_type,
       cohort_id: enrollment.cohort_id,
       status: 'paid',
@@ -288,6 +290,7 @@ export async function markEnrollmentPaid(id: string) {
       cohortTime: enrollment.cohorts?.time || "",
       joiningType: enrollment.joining_type || "online",
       meetingLink: enrollment.cohorts?.meeting_link || undefined,
+      whatsappGroupLink: enrollment.cohorts?.whatsapp_group_link || undefined,
     });
     
     if (emailResult.error) {
@@ -461,6 +464,41 @@ export async function updateNotificationEmails(emails: string) {
     return { success: false, error: error.message };
   }
   return { success: true };
+}
+
+export async function getEnrollmentGuaranteeText() {
+  const { data, error } = await supabase
+    .from("admin_settings")
+    .select("value")
+    .eq("key", ENROLLMENT_GUARANTEE_TEXT_KEY)
+    .maybeSingle();
+
+  if (error) {
+    return { success: false, error: error.message, data: DEFAULT_ENROLLMENT_GUARANTEE_TEXT };
+  }
+
+  return { success: true, data: data?.value || DEFAULT_ENROLLMENT_GUARANTEE_TEXT };
+}
+
+export async function updateEnrollmentGuaranteeText(text: string) {
+  const cleanedText = text.trim() || DEFAULT_ENROLLMENT_GUARANTEE_TEXT;
+
+  const { error } = await supabase
+    .from("admin_settings")
+    .upsert(
+      {
+        key: ENROLLMENT_GUARANTEE_TEXT_KEY,
+        value: cleanedText,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: "key" }
+    );
+
+  if (error) {
+    return { success: false, error: error.message };
+  }
+
+  return { success: true, data: cleanedText };
 }
 
 export async function sendBulkMeetingEmails(students: { email: string, name: string }[], cohortName: string, cohortDates: string, cohortTime: string, meetingLink: string) {

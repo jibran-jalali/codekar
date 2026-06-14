@@ -3,53 +3,61 @@ interface WaitlistEmailProps {
   cohortName: string;
 }
 
-export function WaitlistConfirmationEmail({
-  name,
-  cohortName,
-}: WaitlistEmailProps) {
-  const logoUrl = "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/render/image/public/document-uploads/Codekar-1766840680469.png?width=400&height=400&resize=contain";
+export function WaitlistConfirmationEmail({ name, cohortName }: WaitlistEmailProps) {
+  const logoUrl =
+    "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/render/image/public/document-uploads/Codekar-1766840680469.png?width=400&height=400&resize=contain";
 
-    return (
-      <div style={{ fontFamily: 'Arial, sans-serif', maxWidth: '600px', margin: '0 auto', backgroundColor: '#fff', color: '#fff', padding: '40px' }}>
-        <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-        <img 
-          src={logoUrl} 
-          alt="CODEKAR" 
-          style={{ height: '64px', width: 'auto', marginBottom: '12px' }}
-        />
-        <p style={{ color: '#888', margin: 0, fontSize: '14px', letterSpacing: '1px', textTransform: 'uppercase' }}>Waitlist Registration</p>
-      </div>
-
-      <div style={{ backgroundColor: '#111', borderRadius: '16px', padding: '32px', marginBottom: '24px', border: '1px solid #222' }}>
-        <h2 style={{ fontSize: '28px', margin: '0 0 16px 0', fontWeight: 'bold' }}>Hi {name}!</h2>
-        <p style={{ color: '#aaa', lineHeight: '1.6', margin: '0 0 32px 0', fontSize: '16px' }}>
-          Thank you for your interest in our workshop! You've been successfully added to the waitlist for <strong style={{ color: '#fff' }}>{cohortName}</strong>.
-        </p>
-
-        <div style={{ backgroundColor: '#1a1a1a', borderRadius: '12px', padding: '24px', marginBottom: '16px', border: '1px solid #333' }}>
-          <p style={{ margin: '0', color: '#ccc', fontSize: '15px', lineHeight: '1.6' }}>
-            Since this cohort is currently full, we will contact you as soon as a spot becomes available or when we announce our next cohort dates.
+  return (
+    <div style={page}>
+      <div style={card}>
+        <div style={hero}>
+          <img src={logoUrl} alt="CodeKar" style={logo} />
+          <p style={eyebrow}>Waitlist confirmed</p>
+          <h1 style={title}>You are on the list, {name}.</h1>
+          <p style={lead}>
+            We saved your interest for <strong style={strong}>{cohortName}</strong>. If a seat opens or the next batch is announced, the CodeKar team will reach out.
           </p>
         </div>
 
-        <p style={{ color: '#aaa', lineHeight: '1.6', margin: '32px 0 0 0', fontSize: '16px' }}>
-          In the meantime, feel free to follow us on Instagram for updates and coding tips!
-        </p>
-      </div>
-
-      <div style={{ textAlign: 'center', padding: '40px 0', borderTop: '1px solid #222' }}>
-        <p style={{ color: '#666', margin: '0 0 16px 0', fontSize: '14px' }}>Have questions? Contact us:</p>
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', flexWrap: 'wrap' }}>
-          <a href="https://wa.me/923390053713" style={{ color: '#fff', textDecoration: 'none', margin: '0 10px' }}>WhatsApp</a>
-          <a href="https://instagram.com/codekar_" style={{ color: '#fff', textDecoration: 'none', margin: '0 10px' }}>Instagram</a>
+        <div style={panel}>
+          <h2 style={sectionTitle}>What to Expect</h2>
+          <p style={bodyText}>You do not need to submit payment right now.</p>
+          <p style={bodyText}>Keep an eye on WhatsApp and email for updates about availability.</p>
+          <p style={bodyText}>You can also message us directly if your schedule changes.</p>
         </div>
-      </div>
 
-      <div style={{ textAlign: 'center', marginTop: '40px' }}>
-        <p style={{ color: '#444', fontSize: '12px', margin: 0 }}>
-          © 2025 Codekar. All rights reserved.
-        </p>
+        <div style={ctaPanel}>
+          <a href="https://wa.me/923390053713" style={primaryButton}>Message on WhatsApp</a>
+          <a href="https://instagram.com/codekar_" style={secondaryButton}>Follow CodeKar</a>
+        </div>
+
+        <Footer />
       </div>
     </div>
   );
 }
+
+function Footer() {
+  return (
+    <div style={footer}>
+      <p style={copyright}>© 2026 CodeKar. All rights reserved.</p>
+    </div>
+  );
+}
+
+const page = { margin: "0", padding: "32px 12px", backgroundColor: "#050505", fontFamily: "Arial, sans-serif" };
+const card = { maxWidth: "620px", margin: "0 auto", backgroundColor: "#0b0b0f", color: "#ffffff", borderRadius: "28px", overflow: "hidden", border: "1px solid #24243a" };
+const hero = { padding: "36px 32px", textAlign: "center" as const, background: "linear-gradient(135deg,#050505,#111827 45%,#3b0764)" };
+const logo = { width: "96px", height: "96px", objectFit: "contain" as const, borderRadius: "999px", backgroundColor: "#ffffff", marginBottom: "18px" };
+const eyebrow = { margin: "0 0 12px", color: "#f0abfc", fontSize: "12px", fontWeight: "bold", letterSpacing: "2px", textTransform: "uppercase" as const };
+const title = { margin: "0", color: "#ffffff", fontSize: "30px", lineHeight: "38px", fontWeight: "800" };
+const lead = { margin: "16px auto 0", maxWidth: "470px", color: "#d1d5db", fontSize: "16px", lineHeight: "25px" };
+const strong = { color: "#ffffff" };
+const panel = { margin: "28px 28px 0", padding: "24px", backgroundColor: "#111118", border: "1px solid #24243a", borderRadius: "20px" };
+const ctaPanel = { margin: "18px 28px 0", padding: "24px", textAlign: "center" as const, background: "linear-gradient(135deg,rgba(34,211,238,.10),rgba(244,114,182,.10))", border: "1px solid rgba(244,114,182,.22)", borderRadius: "20px" };
+const sectionTitle = { margin: "0 0 16px", color: "#ffffff", fontSize: "18px", lineHeight: "24px" };
+const bodyText = { margin: "0 0 10px", color: "#c7cedd", fontSize: "14px", lineHeight: "23px" };
+const primaryButton = { display: "inline-block", margin: "0 10px 10px 0", padding: "13px 18px", backgroundColor: "#ffffff", color: "#000000", borderRadius: "12px", textDecoration: "none", fontWeight: "bold", fontSize: "14px" };
+const secondaryButton = { display: "inline-block", margin: "0 10px 10px 0", padding: "13px 18px", backgroundColor: "#d946ef", color: "#ffffff", borderRadius: "12px", textDecoration: "none", fontWeight: "bold", fontSize: "14px" };
+const footer = { padding: "28px", textAlign: "center" as const };
+const copyright = { margin: "0", color: "#555b6b", fontSize: "11px" };

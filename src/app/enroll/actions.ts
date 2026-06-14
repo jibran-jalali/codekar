@@ -2,6 +2,7 @@
 
 import { supabase } from "@/lib/supabase";
 import { sendEnrollmentEmail, sendWaitlistEmail, sendAdminNotificationEmail } from "@/lib/mail";
+import { DEFAULT_ENROLLMENT_GUARANTEE_TEXT, ENROLLMENT_GUARANTEE_TEXT_KEY } from "@/lib/site-copy";
 
 function generateCertificateId() {
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -18,6 +19,7 @@ export async function enrollUser(formData: {
   phone: string;
   email: string;
   profession?: string;
+  ai_experience_level?: string;
   joining_type?: string;
   promo_code: string | null;
   price_paid: number;
@@ -49,7 +51,7 @@ export async function enrollUser(formData: {
       const { data: fallbackCohortDetails, error: fallbackCohortDetailsError } = formData.cohort_id
         ? await supabase
             .from("cohorts")
-            .select("name, dates, time, meeting_link")
+            .select("name, dates, time, meeting_link, whatsapp_group_link")
             .eq("id", formData.cohort_id)
             .maybeSingle()
         : { data: null, error: null };
@@ -69,6 +71,7 @@ export async function enrollUser(formData: {
       phone: formData.phone,
       email: formData.email,
       profession: formData.profession,
+      ai_experience_level: formData.ai_experience_level,
       joining_type: formData.joining_type,
       promo_code: formData.promo_code,
       price_paid: formData.price_paid,
@@ -279,4 +282,19 @@ export async function getActiveCohorts() {
   }));
 
   return { data: cohortsWithCounts };
+}
+
+export async function getEnrollmentGuaranteeText() {
+  const { data, error } = await supabase
+    .from("admin_settings")
+    .select("value")
+    .eq("key", ENROLLMENT_GUARANTEE_TEXT_KEY)
+    .maybeSingle();
+
+  if (error) {
+    console.error("Error fetching enrollment guarantee text:", error);
+    return DEFAULT_ENROLLMENT_GUARANTEE_TEXT;
+  }
+
+  return data?.value?.trim() || DEFAULT_ENROLLMENT_GUARANTEE_TEXT;
 }

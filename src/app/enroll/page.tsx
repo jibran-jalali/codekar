@@ -8,7 +8,8 @@ import { Label } from "@/components/ui/label";
 import { Calendar, Clock, MapPin, Users, ArrowLeft, X, Bell, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
-import { getActiveCohorts, joinWaitlist } from "./actions";
+import { DEFAULT_ENROLLMENT_GUARANTEE_TEXT } from "@/lib/site-copy";
+import { getActiveCohorts, getEnrollmentGuaranteeText, joinWaitlist } from "./actions";
 
 interface Cohort {
   id: string;
@@ -32,13 +33,18 @@ export default function EnrollPage() {
   const [selectedCohort, setSelectedCohort] = useState<Cohort | null>(null);
   const [waitlistForm, setWaitlistForm] = useState({ name: "", email: "", phone: "" });
   const [submitting, setSubmitting] = useState(false);
+  const [guaranteeText, setGuaranteeText] = useState(DEFAULT_ENROLLMENT_GUARANTEE_TEXT);
 
   useEffect(() => {
     async function loadCohorts() {
-      const result = await getActiveCohorts();
+      const [result, savedGuaranteeText] = await Promise.all([
+        getActiveCohorts(),
+        getEnrollmentGuaranteeText(),
+      ]);
       if (result.data) {
         setCohorts(result.data);
       }
+      setGuaranteeText(savedGuaranteeText);
       setLoading(false);
     }
     loadCohorts();
@@ -99,6 +105,10 @@ export default function EnrollPage() {
             <Users className="w-4 h-4 text-white/60" />
             <span className="text-sm">Limited Spots</span>
           </div>
+        </div>
+
+        <div className="mx-auto max-w-2xl rounded-2xl border border-fuchsia-400/25 bg-gradient-to-r from-fuchsia-500/10 via-white/5 to-cyan-400/10 px-5 py-4 text-center text-sm md:text-base font-medium text-white/90 shadow-[0_0_40px_rgba(217,70,239,0.12)]">
+          {guaranteeText}
         </div>
 
         {loading ? (
@@ -203,11 +213,11 @@ export default function EnrollPage() {
                             Get Contacted for Next Cohort
                           </Button>
                         ) : (
-                        <Link href={`/enroll/register?cohort=${cohort.id}`}>
-                          <Button className="w-full relative overflow-hidden bg-white hover:bg-gray-100 text-black font-bold py-6 rounded-xl text-base shadow-xl transition-all hover:scale-[1.02] active:scale-95 group">
-                            <span className="relative z-10">{buttonText}</span>
-                          </Button>
-                        </Link>
+                          <Link href={`/enroll/register?cohort=${cohort.id}`}>
+                            <Button className="w-full relative overflow-hidden bg-white hover:bg-gray-100 text-black font-bold py-6 rounded-xl text-base shadow-xl transition-all hover:scale-[1.02] active:scale-95 group">
+                              <span className="relative z-10">{buttonText}</span>
+                            </Button>
+                          </Link>
                       )}
                     </div>
                   </Card>

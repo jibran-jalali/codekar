@@ -15,6 +15,7 @@ import {
   CreditCard, 
   Building2,
   User,
+  Briefcase,
   Hash,
   Fingerprint,
   Users,
@@ -58,6 +59,7 @@ function RegisterContent() {
     phone: "",
     email: "",
     profession: "",
+    ai_experience_level: "",
     joining_type: "",
   });
   const [promoCode, setPromoCode] = useState("");
@@ -81,12 +83,13 @@ function RegisterContent() {
   }, [cohortId]);
 
   useEffect(() => {
-    const { name, age, phone, email, profession, joining_type } = formData;
+    const { name, age, phone, email, profession, ai_experience_level, joining_type } = formData;
     const isValid = name.trim() !== "" && 
                    age.trim() !== "" && 
                    phone.trim() !== "" && 
                    email.trim() !== "" && 
                    profession.trim() !== "" &&
+                   ai_experience_level.trim() !== "" &&
                    joining_type.trim() !== "";
     setFormValid(isValid);
   }, [formData]);
@@ -167,6 +170,7 @@ function RegisterContent() {
         phone: formData.phone,
         email: formData.email,
         profession: formData.profession,
+        ai_experience_level: formData.ai_experience_level,
         joining_type: formData.joining_type,
         promo_code: discountApplied ? promoCode.toUpperCase() : null,
         price_paid: currentPrice,
@@ -426,14 +430,40 @@ function RegisterContent() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="profession" className="text-xs font-bold uppercase tracking-widest text-white/40">Current Profession</Label>
-                <Input
+                <div className="relative">
+                  <Briefcase className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/25" />
+                  <select
                   id="profession"
-                  placeholder="e.g. Student / Designer"
                   required
-                  className="bg-[#1a1a1a] border-white/5 h-12 rounded-xl text-white placeholder:text-white/20 focus:border-white/20 focus:ring-1 focus:ring-white/10 transition-all"
+                    className="h-12 w-full appearance-none rounded-xl border border-white/5 bg-[#1a1a1a] px-10 text-sm font-medium text-white outline-none transition-all focus:border-white/20 focus:ring-1 focus:ring-white/10"
                   value={formData.profession}
                   onChange={(e) => setFormData({ ...formData, profession: e.target.value })}
-                />
+                  >
+                    <option value="" className="bg-[#1a1a1a] text-white/50">Select current profession</option>
+                    <option value="student" className="bg-[#1a1a1a]">Student</option>
+                    <option value="freelancer" className="bg-[#1a1a1a]">Freelancer</option>
+                    <option value="developer" className="bg-[#1a1a1a]">Developer</option>
+                    <option value="other" className="bg-[#1a1a1a]">Other</option>
+                  </select>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="ai-experience" className="text-xs font-bold uppercase tracking-widest text-white/40">Experience with AI Tools</Label>
+                <div className="relative">
+                  <Sparkles className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/25" />
+                  <select
+                    id="ai-experience"
+                    required
+                    className="h-12 w-full appearance-none rounded-xl border border-white/5 bg-[#1a1a1a] px-10 text-sm font-medium text-white outline-none transition-all focus:border-white/20 focus:ring-1 focus:ring-white/10"
+                    value={formData.ai_experience_level}
+                    onChange={(e) => setFormData({ ...formData, ai_experience_level: e.target.value })}
+                  >
+                    <option value="" className="bg-[#1a1a1a] text-white/50">Select AI experience</option>
+                    <option value="beginner" className="bg-[#1a1a1a]">Beginner</option>
+                    <option value="intermediate" className="bg-[#1a1a1a]">Intermediate</option>
+                    <option value="advanced" className="bg-[#1a1a1a]">Advanced</option>
+                  </select>
+                </div>
               </div>
               <div className="space-y-2">
                 <Label className="text-xs font-bold uppercase tracking-widest text-white/40">Joining Method</Label>

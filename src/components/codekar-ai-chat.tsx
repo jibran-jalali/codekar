@@ -3,7 +3,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Bot, Send, Sparkles, X } from "lucide-react";
+import { Send, X } from "lucide-react";
 
 type ChatMessage = {
   role: "user" | "assistant";
@@ -25,18 +25,19 @@ type Cohort = {
 const starterMessages: ChatMessage[] = [
   {
     role: "assistant",
-    content: "Hi! I'm CodeKar AI 👋\nAsk me anything about the workshop, pricing, or how to enroll.",
+    content: "Hi, I'm CodeKar AI.\nAsk me about the workshop, pricing, or enrollment.",
   },
 ];
 
 const quickActions = ["Show cohorts", "Help me book", "What will I build?", "Refund"];
 
-const codeKarLogoUrl =
-  "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/render/image/public/document-uploads/Codekar-1766840680469.png?width=400&height=400&resize=contain";
+const codeKarIconUrl = "/icon.svg";
 
 function formatPrice(cohort: Cohort) {
-  const price = cohort.sale_price || cohort.original_price;
-  return price ? `PKR ${Number(price).toLocaleString()}` : "Price TBA";
+  const price = cohort.sale_price ?? cohort.original_price;
+  if (price === null) return "Price TBA";
+  if (Number(price) === 0) return "Free";
+  return `PKR ${Number(price).toLocaleString()}`;
 }
 
 export default function CodeKarAIChat() {
@@ -117,40 +118,31 @@ export default function CodeKarAIChat() {
       <button
         type="button"
         onClick={openChat}
-        className={`fixed bottom-5 right-5 z-[80] flex h-14 w-14 items-center justify-center rounded-full border border-[#a3e635]/30 bg-[#0b0b0b] text-white shadow-[0_20px_60px_rgba(0,0,0,0.45)] transition-all hover:scale-[1.03] hover:border-[#a3e635]/60 active:scale-95 sm:bottom-6 sm:right-6 sm:h-auto sm:w-auto sm:justify-start sm:gap-3 sm:px-4 sm:py-3 ${open ? "pointer-events-none translate-y-3 opacity-0" : "opacity-100"}`}
+        className={`fixed bottom-5 right-5 z-[80] flex h-16 w-16 items-center justify-center rounded-full border border-white/70 bg-white text-black shadow-[0_20px_60px_rgba(255,255,255,0.25)] transition-all hover:scale-[1.03] hover:border-cyan-200 active:scale-95 sm:bottom-6 sm:right-6 sm:h-auto sm:w-auto sm:justify-start sm:gap-3 sm:px-3 sm:py-2.5 ${open ? "pointer-events-none translate-y-3 opacity-0" : "opacity-100"}`}
         aria-label="Open CodeKar AI chat"
       >
-        <span className="relative flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-white sm:h-10 sm:w-10">
-          <Image src={codeKarLogoUrl} alt="" width={40} height={40} className="h-full w-full object-contain p-1" />
-          <span className="absolute bottom-0 right-0 flex h-4 w-4 items-center justify-center rounded-full bg-[#a3e635] text-black ring-2 ring-[#0b0b0b]">
-            <Bot className="h-2.5 w-2.5" />
-          </span>
+        <span className="relative flex h-12 w-12 items-center justify-center overflow-hidden rounded-full bg-white shadow-inner ring-2 ring-black/10 sm:h-11 sm:w-11">
+          <Image src={codeKarIconUrl} alt="" width={44} height={44} className="h-9 w-9 object-contain sm:h-8 sm:w-8" />
         </span>
         <span className="hidden text-left sm:block">
           <span className="block text-sm font-bold leading-tight">CodeKar AI</span>
-          <span className="block text-xs text-[#a3e635]">Official workshop assistant</span>
+          <span className="block text-xs text-black/55">Ask about the workshop</span>
         </span>
       </button>
 
       {open && (
         <div className="fixed inset-x-4 bottom-4 z-[90] sm:inset-auto sm:bottom-6 sm:right-6 sm:w-[380px]">
-          <div className="max-h-[calc(100vh-2rem)] overflow-hidden rounded-[24px] border border-[#a3e635]/20 bg-[#0b0b0b]/95 text-white shadow-[0_30px_100px_rgba(0,0,0,0.7)] backdrop-blur-xl">
-            <div className="relative border-b border-white/10 bg-gradient-to-br from-[#a3e635]/15 via-white/[0.06] to-white/[0.025] p-4">
-              <div className="absolute right-6 top-0 h-20 w-20 rounded-full bg-[#a3e635]/10 blur-3xl" />
+          <div className="max-h-[calc(100vh-2rem)] overflow-hidden rounded-[24px] border border-cyan-200/20 bg-[linear-gradient(145deg,#030712_0%,#050505_28%,#111827_56%,#1e1b4b_78%,#3b0764_100%)] text-white shadow-[0_30px_100px_rgba(0,0,0,0.75),0_0_80px_rgba(79,70,229,0.22)] backdrop-blur-xl">
+            <div className="relative border-b border-cyan-200/15 bg-[linear-gradient(135deg,rgba(34,211,238,0.16)_0%,rgba(79,70,229,0.22)_42%,rgba(219,39,119,0.18)_100%)] p-4">
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_12%_20%,rgba(255,255,255,0.18)_0_1px,transparent_1.5px),radial-gradient(circle_at_72%_36%,rgba(255,255,255,0.14)_0_1px,transparent_1.5px),radial-gradient(circle_at_44%_78%,rgba(255,255,255,0.12)_0_1px,transparent_1.5px)]" />
               <div className="relative flex items-start justify-between gap-4">
                 <div className="flex items-center gap-3">
-                  <div className="relative flex h-12 w-12 items-center justify-center overflow-hidden rounded-2xl bg-white shadow-lg">
-                    <Image src={codeKarLogoUrl} alt="CodeKar" width={48} height={48} className="h-full w-full object-contain p-1.5" />
-                    <span className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-[#a3e635] text-black ring-2 ring-[#0b0b0b]">
-                      <Sparkles className="h-3 w-3" />
-                    </span>
+                  <div className="relative flex h-14 w-14 items-center justify-center overflow-hidden rounded-full bg-[linear-gradient(135deg,#020617_0%,#111827_48%,#312e81_100%)] shadow-lg ring-2 ring-cyan-200/30">
+                    <Image src={codeKarIconUrl} alt="CodeKar" width={44} height={44} className="h-10 w-10 object-contain" />
                   </div>
                   <div>
-                    <div className="mb-1 inline-flex items-center rounded-full border border-[#a3e635]/25 bg-[#a3e635]/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-[#a3e635]">
-                      Official CodeKar
-                    </div>
                     <h2 className="text-base font-bold leading-tight">CodeKar AI</h2>
-                    <p className="text-xs text-white/55">Workshop guidance, cohorts, and booking help</p>
+                    <p className="mt-1 text-xs text-white/55">Workshop, cohorts, and booking help</p>
                   </div>
                 </div>
                 <div className="flex items-center">
@@ -172,8 +164,8 @@ export default function CodeKarAIChat() {
                   <div
                     className={`max-w-[88%] whitespace-pre-wrap rounded-2xl px-4 py-3 text-sm leading-relaxed shadow-sm ${
                       message.role === "user"
-                        ? "bg-gradient-to-br from-[#a3e635] to-[#65a30d] text-black font-semibold rounded-br-sm"
-                        : "border border-[#a3e635]/15 bg-white/[0.06] text-white/90 backdrop-blur-md rounded-bl-sm"
+                        ? "bg-[linear-gradient(135deg,#22d3ee_0%,#818cf8_48%,#f472b6_100%)] text-black font-semibold rounded-br-sm"
+                        : "border border-cyan-200/15 bg-[linear-gradient(135deg,rgba(255,255,255,0.09)_0%,rgba(79,70,229,0.12)_48%,rgba(219,39,119,0.08)_100%)] text-white/90 backdrop-blur-md rounded-bl-sm"
                     }`}
                   >
                     {message.content}
@@ -182,20 +174,20 @@ export default function CodeKarAIChat() {
               ))}
 
               {visibleCohorts.length > 0 && (
-                <div className="space-y-2 rounded-2xl border border-white/10 bg-black/35 p-3">
-                  <p className="px-1 text-[11px] font-bold uppercase tracking-[0.16em] text-[#a3e635]">Active CodeKar cohorts</p>
+                <div className="space-y-2 rounded-2xl border border-cyan-200/15 bg-[linear-gradient(135deg,rgba(0,0,0,0.55)_0%,rgba(30,27,75,0.32)_55%,rgba(59,7,100,0.26)_100%)] p-3">
+                  <p className="px-1 text-[11px] font-bold uppercase tracking-[0.16em] text-cyan-200">Active CodeKar cohorts</p>
                   {visibleCohorts.map((cohort) => (
                     <Link
                       key={cohort.id}
                       href="/enroll"
-                      className="block rounded-2xl bg-white/[0.06] p-3 transition hover:bg-white/[0.1]"
+                      className="block rounded-2xl bg-[linear-gradient(135deg,rgba(255,255,255,0.08)_0%,rgba(34,211,238,0.06)_45%,rgba(244,114,182,0.06)_100%)] p-3 transition hover:from-white/[0.12]"
                     >
                       <div className="flex items-center justify-between gap-3">
                         <div className="min-w-0">
                           <p className="text-sm font-bold">{cohort.name || "CodeKar Cohort"}</p>
                           <p className="mt-1 truncate text-xs text-white/55">{cohort.dates || "Dates TBA"} - {cohort.time || "Time TBA"}</p>
                         </div>
-                        <span className="shrink-0 rounded-full bg-[#a3e635] px-2.5 py-1 text-[11px] font-bold text-black">
+                        <span className="shrink-0 rounded-full bg-[linear-gradient(135deg,#22d3ee,#f472b6)] px-2.5 py-1 text-[11px] font-bold text-black">
                           {formatPrice(cohort)}
                         </span>
                       </div>
@@ -222,7 +214,7 @@ export default function CodeKarAIChat() {
                     key={action}
                     type="button"
                     onClick={() => sendMessage(action)}
-                    className="min-w-0 rounded-full border border-white/10 bg-white/[0.06] px-3 py-2 text-xs font-medium text-white/75 transition hover:bg-white/[0.1] hover:text-white sm:shrink-0"
+                    className="min-w-0 rounded-full border border-cyan-200/15 bg-[linear-gradient(135deg,rgba(255,255,255,0.08),rgba(79,70,229,0.12),rgba(219,39,119,0.08))] px-3 py-2 text-xs font-medium text-white/80 transition hover:border-fuchsia-300/35 hover:text-white sm:shrink-0"
                   >
                     {action}
                   </button>
@@ -236,7 +228,7 @@ export default function CodeKarAIChat() {
                   event.preventDefault();
                   sendMessage(input);
                 }}
-                className="flex items-end gap-2 rounded-2xl border border-white/10 bg-[#121212]/80 shadow-inner p-2 backdrop-blur-lg focus-within:border-white/30 focus-within:bg-[#1a1a1a]/90 transition-all"
+                className="flex items-end gap-2 rounded-2xl border border-cyan-200/15 bg-[linear-gradient(135deg,rgba(17,24,39,0.9)_0%,rgba(30,27,75,0.72)_52%,rgba(0,0,0,0.78)_100%)] shadow-inner p-2 backdrop-blur-lg transition-all focus-within:border-fuchsia-300/45"
               >
                 <textarea
                   value={input}
@@ -254,7 +246,7 @@ export default function CodeKarAIChat() {
                 <button
                   type="submit"
                   disabled={loading || !input.trim()}
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#a3e635] text-black shadow-lg transition-transform hover:scale-105 disabled:cursor-not-allowed disabled:opacity-40"
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[linear-gradient(135deg,#22d3ee_0%,#818cf8_48%,#f472b6_100%)] text-black shadow-lg shadow-indigo-500/25 transition-transform hover:scale-105 disabled:cursor-not-allowed disabled:opacity-40"
                   aria-label="Send message"
                 >
                   <Send className="h-4 w-4" />

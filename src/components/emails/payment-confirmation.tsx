@@ -5,6 +5,7 @@ interface PaymentConfirmationEmailProps {
   cohortTime: string;
   joiningType: string;
   meetingLink?: string;
+  whatsappGroupLink?: string;
 }
 
 export function PaymentConfirmationEmail({
@@ -14,94 +15,105 @@ export function PaymentConfirmationEmail({
   cohortTime,
   joiningType,
   meetingLink,
+  whatsappGroupLink,
 }: PaymentConfirmationEmailProps) {
-  const logoUrl = "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/render/image/public/document-uploads/Codekar-1766840680469.png?width=400&height=400&resize=contain";
+  const logoUrl =
+    "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/render/image/public/document-uploads/Codekar-1766840680469.png?width=400&height=400&resize=contain";
+  const hasLinks = Boolean(meetingLink || whatsappGroupLink);
 
-    return (
-      <div style={{ fontFamily: 'Arial, sans-serif', maxWidth: '600px', margin: '0 auto', backgroundColor: '#000', color: '#fff', padding: '40px' }}>
-        <div style={{ textAlign: 'center', marginBottom: '40px', backgroundColor: '#000', padding: '20px', borderRadius: '12px' }}>
-        <img 
-          src={logoUrl} 
-          alt="CODEKAR" 
-          style={{ height: '64px', width: 'auto', marginBottom: '12px', backgroundColor: '#000', borderRadius: '8px' }}
-        />
-        <p style={{ color: '#888', margin: 0, fontSize: '14px', letterSpacing: '1px', textTransform: 'uppercase' }}>Payment Confirmed</p>
-      </div>
+  return (
+    <div style={page}>
+      <div style={card}>
+        <div style={hero}>
+          <img src={logoUrl} alt="CodeKar" style={logo} />
+          <p style={eyebrow}>Payment confirmed</p>
+          <h1 style={title}>You are officially in, {name}.</h1>
+          <p style={lead}>
+            Your payment has been verified and your seat for the workshop is confirmed.
+          </p>
+        </div>
 
-      <div style={{ backgroundColor: '#111', borderRadius: '16px', padding: '32px', marginBottom: '24px', border: '1px solid #222' }}>
-        <h2 style={{ fontSize: '28px', margin: '0 0 16px 0', fontWeight: 'bold' }}>Payment Received!</h2>
-        <p style={{ color: '#aaa', lineHeight: '1.6', margin: '0 0 32px 0', fontSize: '16px' }}>
-          Hi {name}, we have successfully verified your payment. Your spot for the workshop has been officially confirmed!
-        </p>
+        <div style={panel}>
+          <h2 style={sectionTitle}>Workshop Details</h2>
+          <InfoRow label="Workshop" value={cohortName} />
+          <InfoRow label="Dates" value={cohortDates} />
+          <InfoRow label="Time" value={cohortTime} />
+          <InfoRow label="Format" value={joiningType === "inperson" ? "In-person" : "Online"} />
+        </div>
 
-        <div style={{ backgroundColor: '#1a1a1a', borderRadius: '12px', padding: '24px', border: '1px solid #333' }}>
-          <h3 style={{ fontSize: '18px', margin: '0 0 20px 0', color: '#fff', fontWeight: 'bold', borderBottom: '1px solid #333', paddingBottom: '10px' }}>Your Workshop Details</h3>
-          <div style={{ display: 'grid', gap: '12px' }}>
-            <p style={{ margin: '8px 0', color: '#ccc', fontSize: '15px' }}>
-              <strong style={{ color: '#fff', width: '100px', display: 'inline-block' }}>Workshop:</strong> {cohortName}
-            </p>
-            <p style={{ margin: '8px 0', color: '#ccc', fontSize: '15px' }}>
-              <strong style={{ color: '#fff', width: '100px', display: 'inline-block' }}>Dates:</strong> {cohortDates}
-            </p>
-            <p style={{ margin: '8px 0', color: '#ccc', fontSize: '15px' }}>
-              <strong style={{ color: '#fff', width: '100px', display: 'inline-block' }}>Time:</strong> {cohortTime}
-            </p>
-            <p style={{ margin: '8px 0', color: '#ccc', fontSize: '15px', textTransform: 'capitalize' }}>
-              <strong style={{ color: '#fff', width: '100px', display: 'inline-block' }}>Format:</strong> {joiningType === 'inperson' ? 'In-person' : joiningType}
-            </p>
-            {meetingLink && (
-              <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid #333' }}>
-                <p style={{ margin: '0 0 12px 0', color: '#fff', fontSize: '15px', fontWeight: 'bold' }}>Joining Link:</p>
-                <a 
-                  href={meetingLink} 
-                  style={{ 
-                    display: 'inline-block', 
-                    backgroundColor: '#fff', 
-                    color: '#000', 
-                    padding: '12px 24px', 
-                    borderRadius: '8px', 
-                    textDecoration: 'none', 
-                    fontWeight: 'bold',
-                    fontSize: '14px'
-                  }}
-                >
-                  Join Workshop
+        {hasLinks && (
+          <div style={accentPanel}>
+            <h2 style={sectionTitle}>Joining Links</h2>
+            <p style={mutedText}>Save these links before the workshop starts.</p>
+            <div style={buttonRow}>
+              {meetingLink && (
+                <a href={meetingLink} style={primaryButton}>
+                  Open Meeting Link
                 </a>
-                <p style={{ margin: '12px 0 0 0', color: '#888', fontSize: '12px', wordBreak: 'break-all' }}>
-                  {meetingLink}
-                </p>
-              </div>
-            )}
+              )}
+              {whatsappGroupLink && (
+                <a href={whatsappGroupLink} style={secondaryButton}>
+                  Join WhatsApp Group
+                </a>
+              )}
+            </div>
           </div>
+        )}
+
+        <div style={nextPanel}>
+          <h2 style={sectionTitle}>What Happens Next</h2>
+          <p style={bodyText}>Join 5 minutes early, keep your laptop charged, and use a stable internet connection.</p>
+          <p style={bodyText}>
+            If links are not shown above, the CodeKar team will share final access details before the workshop.
+          </p>
         </div>
-      </div>
 
-      <div style={{ backgroundColor: '#1a1a1a', borderRadius: '16px', padding: '32px', marginBottom: '32px', border: '1px solid #222' }}>
-        <h4 style={{ margin: '0 0 16px 0', color: '#fff', fontSize: '18px', fontWeight: 'bold' }}>What&apos;s Next?</h4>
-        <p style={{ color: '#ccc', lineHeight: '1.6', fontSize: '15px' }}>
-          {meetingLink 
-            ? "You can use the link above to join the workshop at the scheduled time. We recommend joining 5 minutes early to test your connection."
-            : "We will send you the final agenda and live online joining instructions 24 hours before the workshop starts."
-          }
-        </p>
-        <p style={{ color: '#ccc', lineHeight: '1.6', fontSize: '15px', marginTop: '16px' }}>
-          If you have any questions in the meantime, feel free to reach out to us.
-        </p>
-      </div>
-
-      <div style={{ textAlign: 'center', padding: '40px 0', borderTop: '1px solid #222' }}>
-        <p style={{ color: '#666', margin: '0 0 16px 0', fontSize: '14px' }}>Stay connected:</p>
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', flexWrap: 'wrap' }}>
-          <a href="https://wa.me/923390053713" style={{ color: '#fff', textDecoration: 'none', margin: '0 10px' }}>WhatsApp</a>
-          <a href="https://instagram.com/codekar_" style={{ color: '#fff', textDecoration: 'none', margin: '0 10px' }}>Instagram</a>
-        </div>
-      </div>
-
-      <div style={{ textAlign: 'center', marginTop: '40px' }}>
-        <p style={{ color: '#444', fontSize: '12px', margin: 0 }}>
-          © 2025 Codekar. All rights reserved.
-        </p>
+        <Footer />
       </div>
     </div>
   );
 }
+
+function InfoRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div style={infoRow}>
+      <span style={infoLabel}>{label}</span>
+      <span style={infoValue}>{value || "TBA"}</span>
+    </div>
+  );
+}
+
+function Footer() {
+  return (
+    <div style={footer}>
+      <p style={footerText}>Questions? Message CodeKar anytime.</p>
+      <a href="https://wa.me/923390053713" style={footerLink}>WhatsApp</a>
+      <a href="https://instagram.com/codekar_" style={footerLink}>Instagram</a>
+      <p style={copyright}>© 2026 CodeKar. All rights reserved.</p>
+    </div>
+  );
+}
+
+const page = { margin: "0", padding: "32px 12px", backgroundColor: "#050505", fontFamily: "Arial, sans-serif" };
+const card = { maxWidth: "620px", margin: "0 auto", backgroundColor: "#0b0b0f", color: "#ffffff", borderRadius: "28px", overflow: "hidden", border: "1px solid #24243a" };
+const hero = { padding: "36px 32px", textAlign: "center" as const, background: "linear-gradient(135deg,#050505,#111827 45%,#312e81)" };
+const logo = { width: "96px", height: "96px", objectFit: "contain" as const, borderRadius: "999px", backgroundColor: "#ffffff", marginBottom: "18px" };
+const eyebrow = { margin: "0 0 12px", color: "#93c5fd", fontSize: "12px", fontWeight: "bold", letterSpacing: "2px", textTransform: "uppercase" as const };
+const title = { margin: "0", color: "#ffffff", fontSize: "30px", lineHeight: "38px", fontWeight: "800" };
+const lead = { margin: "16px auto 0", maxWidth: "470px", color: "#d1d5db", fontSize: "16px", lineHeight: "25px" };
+const panel = { margin: "28px 28px 0", padding: "24px", backgroundColor: "#111118", border: "1px solid #24243a", borderRadius: "20px" };
+const accentPanel = { margin: "18px 28px 0", padding: "24px", background: "linear-gradient(135deg,rgba(34,211,238,.12),rgba(244,114,182,.10))", border: "1px solid rgba(147,197,253,.25)", borderRadius: "20px" };
+const nextPanel = { margin: "18px 28px 0", padding: "24px", backgroundColor: "#0f1016", border: "1px solid #202233", borderRadius: "20px" };
+const sectionTitle = { margin: "0 0 16px", color: "#ffffff", fontSize: "18px", lineHeight: "24px" };
+const infoRow = { display: "flex", justifyContent: "space-between", gap: "16px", padding: "12px 0", borderBottom: "1px solid #202233" };
+const infoLabel = { color: "#8b95a7", fontSize: "13px", fontWeight: "bold" };
+const infoValue = { color: "#ffffff", fontSize: "14px", textAlign: "right" as const };
+const mutedText = { margin: "0 0 18px", color: "#aab2c5", fontSize: "14px", lineHeight: "22px" };
+const bodyText = { margin: "0 0 10px", color: "#c7cedd", fontSize: "14px", lineHeight: "23px" };
+const buttonRow = { marginTop: "14px" };
+const primaryButton = { display: "inline-block", margin: "0 10px 10px 0", padding: "13px 18px", backgroundColor: "#ffffff", color: "#000000", borderRadius: "12px", textDecoration: "none", fontWeight: "bold", fontSize: "14px" };
+const secondaryButton = { display: "inline-block", margin: "0 10px 10px 0", padding: "13px 18px", backgroundColor: "#22c55e", color: "#031208", borderRadius: "12px", textDecoration: "none", fontWeight: "bold", fontSize: "14px" };
+const footer = { padding: "28px", textAlign: "center" as const };
+const footerText = { margin: "0 0 12px", color: "#8b95a7", fontSize: "13px" };
+const footerLink = { margin: "0 8px", color: "#e5e7eb", fontSize: "13px", textDecoration: "none", fontWeight: "bold" };
+const copyright = { margin: "18px 0 0", color: "#555b6b", fontSize: "11px" };

@@ -46,8 +46,9 @@ function formatCohortContext(cohorts: Cohort[]) {
 
   return cohorts
     .map((cohort, index) => {
-      const price = cohort.sale_price || cohort.original_price;
-      return `${index + 1}. ${cohort.name || "CodeKar Cohort"} | ${cohort.dates || "dates TBA"} | ${cohort.time || "time TBA"} | ${cohort.delivery_type || "online"} | PKR ${price || "TBA"} | ${cohort.total_spots || "limited"} seats`;
+      const price = cohort.sale_price ?? cohort.original_price;
+      const priceLabel = price === null ? "Price TBA" : Number(price) === 0 ? "Free" : `PKR ${Number(price).toLocaleString()}`;
+      return `${index + 1}. ${cohort.name || "CodeKar Cohort"} | ${cohort.dates || "dates TBA"} | ${cohort.time || "time TBA"} | ${cohort.delivery_type || "online"} | ${priceLabel} | ${cohort.total_spots || "limited"} seats`;
     })
     .join("\n");
 }
@@ -117,7 +118,7 @@ export async function POST(req: Request) {
         messages: [
           {
             role: "system",
-            content: `You are CodeKar AI, the official customer support assistant for CodeKar.
+            content: `You are CodeKar AI, the customer support assistant for CodeKar.
 
 Tone: direct, helpful, anti-hype, concise, Pakistan-friendly.
 Audience: non-technical 19-26 year olds in Pakistan interested in freelancing and online income.

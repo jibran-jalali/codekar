@@ -65,6 +65,8 @@ import { toast } from "sonner";
     deleteFeedback,
     getNotificationEmails,
     updateNotificationEmails,
+    getEnrollmentGuaranteeText,
+    updateEnrollmentGuaranteeText,
     sendBulkMeetingEmails,
     sendBulkLocationEmails
   } from "../actions";
@@ -97,6 +99,7 @@ interface Enrollment {
   phone: string;
   age: number;
   profession: string;
+  ai_experience_level?: string | null;
   joining_type: string;
   promo_code: string | null;
   price_paid: string;
@@ -196,6 +199,7 @@ const ADMIN_TABS: AdminTab[] = ["cohorts", "enrollments", "waitlist", "promocode
     const [crmEndDate, setCrmEndDate] = useState<string>("");
     const [notificationEmails, setNotificationEmails] = useState<string[]>([]);
     const [newEmail, setNewEmail] = useState<string>("");
+    const [enrollmentGuaranteeText, setEnrollmentGuaranteeText] = useState<string>("");
     const [savingSettings, setSavingSettings] = useState(false);
 
     // Send Email Tab State
@@ -265,7 +269,7 @@ const ADMIN_TABS: AdminTab[] = ["cohorts", "enrollments", "waitlist", "promocode
   async function loadData() {
     try {
       setLoading(true);
-      const [cohortsResult, pendingResult, paidResult, waitlistResult, promoResult, feedbackResult, emailsResult, leadsResult] = await Promise.all([
+      const [cohortsResult, pendingResult, paidResult, waitlistResult, promoResult, feedbackResult, emailsResult, guaranteeResult, leadsResult] = await Promise.all([
         getAllCohorts(),
         getAllEnrollments(),
         getPaidEnrollments(),
@@ -273,6 +277,7 @@ const ADMIN_TABS: AdminTab[] = ["cohorts", "enrollments", "waitlist", "promocode
         getAllPromoCodes(),
         fetch("/api/feedback").then(res => res.ok ? res.json() : []).catch(() => []),
         getNotificationEmails(),
+        getEnrollmentGuaranteeText(),
         fetch("/api/leads").then(res => res.ok ? res.json() : []).catch(() => [])
       ]);
       
@@ -286,6 +291,9 @@ const ADMIN_TABS: AdminTab[] = ["cohorts", "enrollments", "waitlist", "promocode
       if (emailsResult.data) {
         const emails = emailsResult.data.split(',').filter((e: string) => e.trim());
         setNotificationEmails(emails);
+      }
+      if (guaranteeResult.data) {
+        setEnrollmentGuaranteeText(guaranteeResult.data);
       }
     } catch (error) {
       console.error("Error loading dashboard data:", error);
@@ -730,6 +738,23 @@ const ADMIN_TABS: AdminTab[] = ["cohorts", "enrollments", "waitlist", "promocode
         setSavingSettings(false);
       };
 
+      const handleSaveEnrollmentGuaranteeText = async () => {
+        if (!enrollmentGuaranteeText.trim()) {
+          toast.error("Guarantee text cannot be empty");
+          return;
+        }
+
+        setSavingSettings(true);
+        const result = await updateEnrollmentGuaranteeText(enrollmentGuaranteeText);
+        if (result.success) {
+          if (result.data) setEnrollmentGuaranteeText(result.data);
+          toast.success("Guarantee text saved!");
+        } else {
+          toast.error(result.error);
+        }
+        setSavingSettings(false);
+      };
+
       const handleSendBulkEmail = async () => {
         if (!selectedEmailCohortId) {
           toast.error("Please select a cohort");
@@ -807,7 +832,7 @@ const ADMIN_TABS: AdminTab[] = ["cohorts", "enrollments", "waitlist", "promocode
     };
 
     const downloadCSV = (data: Enrollment[]) => {
-      const headers = ["Name", "Email", "Phone", "Age", "Profession", "Joining Type", "Cohort", "Price Paid", "Date"];
+      const headers = ["Name", "Email", "Phone", "Age", "Profession", "AI Experience", "Joining Type", "Cohort", "Price Paid", "Date"];
       const csvContent = [
         headers.join(","),
         ...data.map(e => [
@@ -816,6 +841,7 @@ const ADMIN_TABS: AdminTab[] = ["cohorts", "enrollments", "waitlist", "promocode
           `"${e.phone}"`,
           e.age,
           `"${e.profession}"`,
+          `"${e.ai_experience_level || ""}"`,
           `"${e.joining_type}"`,
           `"${e.cohorts?.name || ""}"`,
           e.price_paid,
@@ -929,6 +955,15 @@ const ADMIN_TABS: AdminTab[] = ["cohorts", "enrollments", "waitlist", "promocode
     const totalLeadsPages = Math.ceil(filteredLeads.length / LEADS_PER_PAGE);
 
     const selectableLeads = leads.filter(l => l.consent);
+
+    const formatOptionLabel = (value?: string | null) => {
+      if (!value) return "Not specified";
+      return value
+        .split(/[\s_-]+/)
+        .filter(Boolean)
+        .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+        .join(" ");
+    };
 
     const totalRevenue = paidEnrollments.reduce((acc, curr) => acc + parseInt(curr.price_paid), 0);
 
@@ -1304,6 +1339,14 @@ const ADMIN_TABS: AdminTab[] = ["cohorts", "enrollments", "waitlist", "promocode
                           <p className="text-white/20 uppercase font-bold text-[9px]">Price Paid</p>
                           <p className="text-green-400 font-bold">PKR {parseInt(enrollment.price_paid).toLocaleString()}</p>
                         </div>
+                        <div>
+                          <p className="text-white/20 uppercase font-bold text-[9px]">Profession</p>
+                          <p className="text-white/60">{formatOptionLabel(enrollment.profession)}</p>
+                        </div>
+                        <div>
+                          <p className="text-white/20 uppercase font-bold text-[9px]">AI Experience</p>
+                          <p className="text-white/60">{formatOptionLabel(enrollment.ai_experience_level)}</p>
+                        </div>
                       </div>
                       <div className="flex gap-2 pt-2 border-t border-white/5">
                         {enrollmentFilter === "pending" && (
@@ -1343,6 +1386,8 @@ const ADMIN_TABS: AdminTab[] = ["cohorts", "enrollments", "waitlist", "promocode
                       <th className="text-left py-3 px-4 text-white/60 font-medium">Name</th>
                       <th className="text-left py-3 px-4 text-white/60 font-medium">Email</th>
                       <th className="text-left py-3 px-4 text-white/60 font-medium">Phone</th>
+                      <th className="text-left py-3 px-4 text-white/60 font-medium">Profession</th>
+                      <th className="text-left py-3 px-4 text-white/60 font-medium">AI Exp.</th>
                       <th className="text-left py-3 px-4 text-white/60 font-medium">Cohort</th>
                       <th className="text-left py-3 px-4 text-white/60 font-medium">Price</th>
                       <th className="text-left py-3 px-4 text-white/60 font-medium">Date</th>
@@ -1363,6 +1408,8 @@ const ADMIN_TABS: AdminTab[] = ["cohorts", "enrollments", "waitlist", "promocode
                         <td className="py-3 px-4">{enrollment.name}</td>
                         <td className="py-3 px-4 text-white/60">{enrollment.email}</td>
                         <td className="py-3 px-4 text-white/60">{enrollment.phone}</td>
+                        <td className="py-3 px-4 text-white/60">{formatOptionLabel(enrollment.profession)}</td>
+                        <td className="py-3 px-4 text-white/60">{formatOptionLabel(enrollment.ai_experience_level)}</td>
                         <td className="py-3 px-4 text-white/60">{enrollment.cohorts?.name || "—"}</td>
                         <td className="py-3 px-4">PKR {parseInt(enrollment.price_paid).toLocaleString()}</td>
                         <td className="py-3 px-4 text-white/60">
@@ -2158,7 +2205,11 @@ const ADMIN_TABS: AdminTab[] = ["cohorts", "enrollments", "waitlist", "promocode
                               </div>
                               <div>
                                 <p className="text-white/20 uppercase font-bold">Profession</p>
-                                <p className="text-white/60 truncate">{enrollment.profession}</p>
+                                <p className="text-white/60 truncate">{formatOptionLabel(enrollment.profession)}</p>
+                              </div>
+                              <div>
+                                <p className="text-white/20 uppercase font-bold">AI Experience</p>
+                                <p className="text-white/60 truncate">{formatOptionLabel(enrollment.ai_experience_level)}</p>
                               </div>
                               <div>
                                 <p className="text-white/20 uppercase font-bold">Joining</p>
@@ -2208,7 +2259,8 @@ const ADMIN_TABS: AdminTab[] = ["cohorts", "enrollments", "waitlist", "promocode
                                   <div className="text-xs text-white/40">{enrollment.phone}</div>
                                 </td>
                                 <td className="py-4 px-4">
-                                  <div className="text-white/80">{enrollment.profession}</div>
+                                  <div className="text-white/80">{formatOptionLabel(enrollment.profession)}</div>
+                                  <div className="text-xs text-white/40">AI: {formatOptionLabel(enrollment.ai_experience_level)}</div>
                                   <div className="text-xs text-white/40 capitalize">{enrollment.joining_type}</div>
                                 </td>
                                 <td className="py-4 px-4">
@@ -2240,6 +2292,38 @@ const ADMIN_TABS: AdminTab[] = ["cohorts", "enrollments", "waitlist", "promocode
             {activeTab === "settings" && (
               <div className="space-y-6">
                 <h2 className="text-xl sm:text-2xl font-bold">Settings</h2>
+
+                <Card className="bg-[#111] border-white/10 p-6 rounded-2xl">
+                  <div className="space-y-5">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-fuchsia-500/10 flex items-center justify-center">
+                        <MessageSquare className="w-5 h-5 text-fuchsia-400" />
+                      </div>
+                      <div>
+                        <h3 className="font-bold">Enrollment Guarantee Text</h3>
+                        <p className="text-xs text-white/40">Shown on the homepage badge and once on the enrollment page</p>
+                      </div>
+                    </div>
+
+                    <Textarea
+                      value={enrollmentGuaranteeText}
+                      onChange={(e) => setEnrollmentGuaranteeText(e.target.value)}
+                      className="min-h-24 bg-[#1a1a1a] border-white/10 text-white resize-none"
+                      placeholder="Full refund if you don't walk away with a working, deployed chatbot."
+                    />
+
+                    <div className="flex justify-end">
+                      <Button
+                        onClick={handleSaveEnrollmentGuaranteeText}
+                        disabled={savingSettings}
+                        className="bg-white text-black hover:bg-gray-100"
+                      >
+                        {savingSettings ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Check className="w-4 h-4 mr-2" />}
+                        Save Guarantee Text
+                      </Button>
+                    </div>
+                  </div>
+                </Card>
                 
                 <Card className="bg-[#111] border-white/10 p-6 rounded-2xl">
                   <div className="space-y-6">

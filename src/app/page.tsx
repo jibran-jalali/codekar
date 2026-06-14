@@ -10,19 +10,24 @@ import FinalCTA from "@/components/sections/final-cta";
 import Footer from "@/components/sections/footer";
 import ContactUs from "@/components/sections/contact-us";
 import CodeKarAIChat from "@/components/codekar-ai-chat";
+import { getEnrollmentGuaranteeText } from "@/app/enroll/actions";
 
-export default function Home() {
+export const dynamic = "force-dynamic";
+
+export default async function Home() {
+  const guaranteeText = await getEnrollmentGuaranteeText();
+
   return (
       <main className="min-h-screen bg-background">
       <Header />
-      <HeroSection />
+      <HeroSection guaranteeText={guaranteeText} />
       <GallerySlider />
       <WhatYouNeed />
       <ReviewsSection />
       <NotForSection />
       <FAQSection />
       <CorporateWorkshopSection />
-      <FinalCTA />
+      <FinalCTA guaranteeText={guaranteeText} />
       <Footer />
       <ContactUs />
       <CodeKarAIChat />

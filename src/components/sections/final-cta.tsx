@@ -4,7 +4,11 @@ import React from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 
-const FinalCTA = () => {
+type FinalCTAProps = {
+  guaranteeText: string;
+};
+
+const FinalCTA = ({ guaranteeText }: FinalCTAProps) => {
   return (
     <section className="w-full bg-black text-white py-16 md:py-24 overflow-hidden">
       <div className="container mx-auto px-4 md:px-8 max-w-7xl">
@@ -44,7 +48,7 @@ const FinalCTA = () => {
               transition={{ delay: 0.35, duration: 0.6 }}
               className="inline-flex max-w-2xl items-center justify-center rounded-full border border-white/20 bg-white/10 px-5 py-3 text-sm sm:text-base font-medium text-white/90 backdrop-blur-sm"
             >
-              Full refund if you don&apos;t walk away with a working, deployed chatbot.
+              {guaranteeText}
             </motion.p>
             
             {/* CTA Button */}

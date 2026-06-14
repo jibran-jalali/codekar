@@ -78,6 +78,7 @@ export async function sendPaymentConfirmationEmail(data: {
   cohortTime: string;
   joiningType: string;
   meetingLink?: string;
+  whatsappGroupLink?: string;
 }) {
   return sendEmail({
     to: data.email,
