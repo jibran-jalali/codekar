@@ -12,10 +12,9 @@ interface CertificateProps {
   certificateIdProp?: string;
   cohortName?: string;
   customDate?: string;
-  onGenerate?: (dataUrl: string) => void;
 }
 
-export const Certificate = ({ name, email, enrollmentId, certificateIdProp, cohortName, customDate, onGenerate }: CertificateProps) => {
+export const Certificate = ({ name, email, enrollmentId, certificateIdProp, cohortName, customDate }: CertificateProps) => {
   const certificateRef = useRef<HTMLDivElement>(null);
   const [sending, setSending] = React.useState(false);
   const [internalDate, setInternalDate] = React.useState(customDate || new Date().toLocaleDateString('en-US', {
@@ -55,24 +54,10 @@ export const Certificate = ({ name, email, enrollmentId, certificateIdProp, coho
     };
 
     const handleSendEmail = async () => {
-      if (certificateRef.current === null || !email) return;
+      if (!email) return;
       setSending(true);
       const toastId = toast.loading("Generating and sending certificate...");
       try {
-        const dataUrl = await toPng(certificateRef.current, {
-          cacheBust: true,
-          pixelRatio: 2,
-          backgroundColor: '#ffffff',
-          width: 1000,
-          height: 700,
-          style: {
-            transform: 'scale(1)',
-            transformOrigin: 'top left',
-            width: '1000px',
-            height: '700px',
-          }
-        });
-
       const res = await fetch("/api/send-certificate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -80,14 +65,21 @@ export const Certificate = ({ name, email, enrollmentId, certificateIdProp, coho
           name,
           email,
           enrollmentId,
-          certificateImage: dataUrl,
+          certificateId: certificateIdProp || certificateId,
+          cohortName: cohortName || "Artificial Intelligence Workshop",
+          customDate: internalDate,
         }),
       });
 
       if (res.ok) {
         toast.success("Certificate sent successfully to " + email, { id: toastId });
       } else {
-        toast.error("Failed to send certificate", { id: toastId });
+        let message = "Failed to send certificate";
+        try {
+          const payload = await res.json();
+          if (payload?.error) message = payload.error;
+        } catch {}
+        toast.error(message, { id: toastId });
       }
     } catch (err) {
       console.error('Email sending failed', err);
