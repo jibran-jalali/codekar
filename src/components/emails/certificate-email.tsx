@@ -1,251 +1,64 @@
-import {
-  Body,
-  Container,
-  Head,
-  Heading,
-  Hr,
-  Html,
-  Img,
-  Link,
-  Preview,
-  Section,
-  Text,
-  Button,
-} from "@react-email/components";
-import * as React from "react";
-
 interface CertificateEmailProps {
   name: string;
   feedbackLink: string;
 }
 
-export const CertificateEmail = ({
-  name,
-  feedbackLink,
-}: CertificateEmailProps) => (
-  <Html>
-    <Head>
-      <style>
-        {`
-          :root { color-scheme: dark; supported-color-schemes: dark; }
-          body { background-color: #000000 !important; }
-          .container { background-color: #0a0a0a !important; }
-          @media only screen and (max-width: 600px) {
-            .container {
-              width: 100% !important;
-              padding: 20px !important;
-              border-radius: 0 !important;
-            }
-          }
-        `}
-      </style>
-    </Head>
-    <Preview>Your Certificate of Completion from CodeKar</Preview>
-    <Body style={main}>
-      <Container style={container} className="container">
-        <Section style={header}>
-          <Img
-            src="https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/render/image/public/document-uploads/Codekar-1766840680469.png?width=400&height=400&resize=contain"
-            width="120"
-            height="auto"
-            alt="CodeKar"
-            style={logo}
-          />
-          <Text style={badge}>Workshop Accomplishment</Text>
-        </Section>
+export const CertificateEmail = ({ name, feedbackLink }: CertificateEmailProps) => {
+  const logoUrl =
+    "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/render/image/public/document-uploads/Codekar-1766840680469.png?width=400&height=400&resize=contain";
 
-        <Section style={content}>
-          <Heading style={h1}>Congratulations, {name}!</Heading>
-          
-          <Text style={text}>
-            It's a proud moment! You've successfully completed the **CodeKar Workshop**. Your dedication to learning and building is truly inspiring.
-          </Text>
+  return (
+    <div style={page}>
+      <div style={card}>
+        <div style={hero}>
+          <img src={logoUrl} alt="CodeKar" style={logo} />
+          <p style={eyebrow}>Certificate issued</p>
+          <h1 style={title}>Congratulations, {name}.</h1>
+          <p style={lead}>
+            You completed the CodeKar workshop. Your certificate is attached to this email.
+          </p>
+        </div>
 
-          <div style={thankYouBox}>
-            <Text style={thankYouText}>
-              "Thank you for being part of this journey. We hope this workshop has equipped you with the tools to build something amazing."
-            </Text>
-          </div>
+        <div style={panel}>
+          <h2 style={sectionTitle}>What This Means</h2>
+          <p style={bodyText}>You showed up, built, practiced, and completed the workshop requirements.</p>
+          <p style={bodyText}>Keep this certificate with your project links and portfolio materials.</p>
+        </div>
 
-          <Text style={text}>
-            Please find your **Certificate of Completion** attached to this email. It serves as a testament to your hard work and new skills.
-          </Text>
+        <div style={ctaPanel}>
+          <h2 style={sectionTitle}>Help Us Improve</h2>
+          <p style={bodyText}>Your feedback helps us make the next cohort sharper and more practical.</p>
+          <a href={feedbackLink} style={primaryButton}>Share Feedback</a>
+        </div>
 
-          <Section style={feedbackSection}>
-            <Heading style={h2}>Help us shape the future</Heading>
-            <Text style={smallText}>
-              Your feedback is the most valuable thing we can receive. It helps us improve and provide even better experiences for the next generation of builders.
-            </Text>
-            <Button href={feedbackLink} style={button}>
-              Share Your Feedback
-            </Button>
-          </Section>
-        </Section>
-
-        <Hr style={hr} />
-
-        <Section style={footer}>
-          <Text style={footerText}>
-            © 2025 CodeKar. All rights reserved.
-          </Text>
-          <div style={socialLinks}>
-            <Link href="https://wa.me/923390053713" style={socialLink}>WhatsApp</Link>
-            <span style={dot}>•</span>
-            <Link href="https://instagram.com/codekar_" style={socialLink}>Instagram</Link>
-          </div>
-          <Text style={tagline}>
-            Empowering the next generation of builders.
-          </Text>
-        </Section>
-      </Container>
-    </Body>
-  </Html>
-);
-
-const main = {
-  backgroundColor: "#000000",
-  fontFamily:
-    '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Ubuntu,sans-serif',
-  padding: "40px 0",
+        <Footer />
+      </div>
+    </div>
+  );
 };
 
-const container = {
-  backgroundColor: "#0a0a0a",
-  margin: "0 auto",
-  padding: "40px",
-  borderRadius: "24px",
-  border: "1px solid #1a1a1a",
-  maxWidth: "600px",
-};
+function Footer() {
+  return (
+    <div style={footer}>
+      <a href="https://wa.me/923390053713" style={footerLink}>WhatsApp</a>
+      <a href="https://instagram.com/codekar_" style={footerLink}>Instagram</a>
+      <p style={copyright}>© 2026 CodeKar. All rights reserved.</p>
+    </div>
+  );
+}
 
-const header = {
-  textAlign: "center" as const,
-  marginBottom: "32px",
-};
-
-const logo = {
-  margin: "0 auto 16px",
-  display: "block",
-};
-
-const badge = {
-  color: "#888",
-  fontSize: "12px",
-  fontWeight: "bold",
-  textTransform: "uppercase" as const,
-  letterSpacing: "2px",
-  margin: "0",
-};
-
-const content = {
-  padding: "0 20px",
-};
-
-const h1 = {
-  color: "#ffffff",
-  fontSize: "32px",
-  fontWeight: "bold",
-  textAlign: "center" as const,
-  margin: "0 0 24px 0",
-  letterSpacing: "-0.5px",
-};
-
-const h2 = {
-  color: "#ffffff",
-  fontSize: "20px",
-  fontWeight: "bold",
-  textAlign: "center" as const,
-  margin: "0 0 12px 0",
-};
-
-const text = {
-  color: "#bbbbbb",
-  fontSize: "16px",
-  lineHeight: "26px",
-  textAlign: "left" as const,
-  margin: "0 0 20px 0",
-};
-
-const smallText = {
-  color: "#888",
-  fontSize: "14px",
-  lineHeight: "22px",
-  textAlign: "center" as const,
-  margin: "0 0 24px 0",
-};
-
-const thankYouBox = {
-  backgroundColor: "#111",
-  borderLeft: "4px solid #ffffff",
-  padding: "20px",
-  borderRadius: "8px",
-  marginBottom: "24px",
-};
-
-const thankYouText = {
-  color: "#ffffff",
-  fontSize: "16px",
-  fontStyle: "italic",
-  margin: "0",
-  lineHeight: "24px",
-};
-
-const feedbackSection = {
-  margin: "40px 0 0",
-  textAlign: "center" as const,
-  backgroundColor: "#111",
-  padding: "32px",
-  borderRadius: "20px",
-  border: "1px solid #1a1a1a",
-};
-
-const button = {
-  backgroundColor: "#ffffff",
-  borderRadius: "12px",
-  color: "#000000",
-  fontSize: "16px",
-  fontWeight: "bold",
-  textDecoration: "none",
-  textAlign: "center" as const,
-  display: "inline-block",
-  padding: "16px 32px",
-};
-
-const hr = {
-  borderColor: "#1a1a1a",
-  margin: "40px 0 20px",
-};
-
-const footer = {
-  textAlign: "center" as const,
-};
-
-const footerText = {
-  color: "#444",
-  fontSize: "12px",
-  margin: "0 0 12px 0",
-};
-
-const socialLinks = {
-  marginBottom: "16px",
-};
-
-const socialLink = {
-  color: "#888",
-  fontSize: "13px",
-  textDecoration: "none",
-  margin: "0 8px",
-};
-
-const dot = {
-  color: "#222",
-  fontSize: "13px",
-};
-
-const tagline = {
-  color: "#333",
-  fontSize: "11px",
-  textTransform: "uppercase" as const,
-  letterSpacing: "1px",
-  margin: "0",
-};
+const page = { margin: "0", padding: "32px 12px", backgroundColor: "#050505", fontFamily: "Arial, sans-serif" };
+const card = { maxWidth: "620px", margin: "0 auto", backgroundColor: "#0b0b0f", color: "#ffffff", borderRadius: "28px", overflow: "hidden", border: "1px solid #24243a" };
+const hero = { padding: "36px 32px", textAlign: "center" as const, background: "linear-gradient(135deg,#050505,#111827 45%,#365314)" };
+const logo = { width: "96px", height: "96px", objectFit: "contain" as const, borderRadius: "999px", backgroundColor: "#ffffff", marginBottom: "18px" };
+const eyebrow = { margin: "0 0 12px", color: "#bef264", fontSize: "12px", fontWeight: "bold", letterSpacing: "2px", textTransform: "uppercase" as const };
+const title = { margin: "0", color: "#ffffff", fontSize: "30px", lineHeight: "38px", fontWeight: "800" };
+const lead = { margin: "16px auto 0", maxWidth: "470px", color: "#d1d5db", fontSize: "16px", lineHeight: "25px" };
+const panel = { margin: "28px 28px 0", padding: "24px", backgroundColor: "#111118", border: "1px solid #24243a", borderRadius: "20px" };
+const ctaPanel = { margin: "18px 28px 0", padding: "28px 24px", textAlign: "center" as const, background: "linear-gradient(135deg,rgba(190,242,100,.12),rgba(34,211,238,.08))", border: "1px solid rgba(190,242,100,.22)", borderRadius: "20px" };
+const sectionTitle = { margin: "0 0 16px", color: "#ffffff", fontSize: "18px", lineHeight: "24px" };
+const bodyText = { margin: "0 0 10px", color: "#c7cedd", fontSize: "14px", lineHeight: "23px" };
+const primaryButton = { display: "inline-block", marginTop: "10px", padding: "14px 22px", backgroundColor: "#ffffff", color: "#000000", borderRadius: "12px", textDecoration: "none", fontWeight: "bold", fontSize: "15px" };
+const footer = { padding: "28px", textAlign: "center" as const };
+const footerLink = { margin: "0 8px", color: "#e5e7eb", fontSize: "13px", textDecoration: "none", fontWeight: "bold" };
+const copyright = { margin: "18px 0 0", color: "#555b6b", fontSize: "11px" };

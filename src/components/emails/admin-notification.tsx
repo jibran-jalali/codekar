@@ -1,17 +1,3 @@
-import {
-  Body,
-  Container,
-  Head,
-  Heading,
-  Hr,
-  Html,
-  Link,
-  Preview,
-  Section,
-  Text,
-} from "@react-email/components";
-import * as React from "react";
-
 interface AdminNotificationEmailProps {
   studentName: string;
   studentEmail: string;
@@ -29,222 +15,82 @@ export const AdminNotificationEmail = ({
   pricePaid,
   joiningType,
 }: AdminNotificationEmailProps) => {
+  const logoUrl =
+    "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/render/image/public/document-uploads/Codekar-1766840680469.png?width=400&height=400&resize=contain";
   const isFreeRegistration = pricePaid <= 0;
 
   return (
-  <Html>
-    <Head>
-      <style>
-        {`
-          :root { color-scheme: dark; supported-color-schemes: dark; }
-          body { background-color: #000000 !important; }
-          .container { background-color: #0a0a0a !important; }
-        `}
-      </style>
-    </Head>
-    <Preview>New Registration: {studentName} - {isFreeRegistration ? "Free Workshop Confirmed" : "Pending Payment Verification"}</Preview>
-    <Body style={main}>
-      <Container style={container} className="container">
-        <Section style={header}>
-          <Text style={{...badge, color: isFreeRegistration ? "#22c55e" : "#f59e0b"}}>New Registration Alert</Text>
-          <Heading style={h1}>{isFreeRegistration ? "Free Workshop Confirmed" : "Payment Pending Verification"}</Heading>
-        </Section>
-
-        <Section style={content}>
-          <Section style={alertBox}>
-            <Text style={alertText}>
-              {isFreeRegistration
-                ? "A student registered for a free workshop and has been added directly to confirmed enrollments. No payment verification is needed."
-                : "A new student has registered and claims to have made payment. Please verify in the dashboard."}
-            </Text>
-          </Section>
-
-          <Section style={detailsBox}>
-            <Heading style={h3}>Student Details</Heading>
-            <table style={tableStyle}>
-              <tbody>
-                <tr>
-                  <td style={labelCell}>Name</td>
-                  <td style={valueCell}>{studentName}</td>
-                </tr>
-                <tr>
-                  <td style={labelCell}>Email</td>
-                  <td style={valueCell}>{studentEmail}</td>
-                </tr>
-                <tr>
-                  <td style={labelCell}>Phone</td>
-                  <td style={valueCell}>{studentPhone}</td>
-                </tr>
-                <tr>
-                  <td style={labelCell}>Workshop</td>
-                  <td style={valueCell}>{cohortName}</td>
-                </tr>
-                <tr>
-                  <td style={labelCell}>Format</td>
-                  <td style={valueCell}>{joiningType === 'inperson' ? 'In-person' : 'Online'}</td>
-                </tr>
-                <tr>
-                  <td style={labelCell}>Amount</td>
-                  <td style={{...valueCell, color: '#22c55e', fontWeight: 'bold'}}>{isFreeRegistration ? "Free" : `PKR ${pricePaid.toLocaleString()}`}</td>
-                </tr>
-              </tbody>
-            </table>
-          </Section>
-
-          <Section style={ctaBox}>
-            <Link href="https://codekar.co/admin/dashboard" style={ctaButton}>
-              {isFreeRegistration ? "Open Dashboard" : "Open Dashboard to Verify"}
-            </Link>
-          </Section>
-
-          <Text style={smallText}>
+    <div style={page}>
+      <div style={card}>
+        <div style={hero}>
+          <img src={logoUrl} alt="CodeKar" style={logo} />
+          <p style={{ ...eyebrow, color: isFreeRegistration ? "#86efac" : "#fbbf24" }}>New registration</p>
+          <h1 style={title}>{isFreeRegistration ? "Free workshop confirmed" : "Payment needs verification"}</h1>
+          <p style={lead}>
             {isFreeRegistration
-              ? "Go to the Enrollments tab to view this student in the confirmed list."
-              : "Go to the Enrollments tab, Pending section, to verify and mark this payment as confirmed."}
-          </Text>
-        </Section>
+              ? "A student registered for a free cohort and was moved directly to confirmed enrollments."
+              : "A student submitted registration and payment confirmation. Please verify the payment in the dashboard."}
+          </p>
+        </div>
 
-        <Hr style={hr} />
+        <div style={panel}>
+          <h2 style={sectionTitle}>Student Details</h2>
+          <InfoRow label="Name" value={studentName} />
+          <InfoRow label="Email" value={studentEmail} />
+          <InfoRow label="Phone" value={studentPhone} />
+          <InfoRow label="Workshop" value={cohortName} />
+          <InfoRow label="Format" value={joiningType === "inperson" ? "In-person" : "Online"} />
+          <InfoRow label="Amount" value={isFreeRegistration ? "Free" : `PKR ${pricePaid.toLocaleString()}`} />
+        </div>
 
-        <Section style={footer}>
-          <Text style={footerText}>
-            This is an automated notification from CodeKar Admin System.
-          </Text>
-        </Section>
-      </Container>
-    </Body>
-  </Html>
+        <div style={ctaPanel}>
+          <a href="https://codekar.co/admin/dashboard" style={primaryButton}>
+            {isFreeRegistration ? "Open Dashboard" : "Verify in Dashboard"}
+          </a>
+          <p style={copyText}>
+            {isFreeRegistration
+              ? "View this student in the paid/confirmed enrollments list."
+              : "Open the pending enrollments tab and mark the student paid after verification."}
+          </p>
+        </div>
+
+        <Footer />
+      </div>
+    </div>
   );
 };
 
-const main = {
-  backgroundColor: "#000000",
-  fontFamily:
-    '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Ubuntu,sans-serif',
-  padding: "40px 0",
-};
+function InfoRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div style={infoRow}>
+      <span style={infoLabel}>{label}</span>
+      <span style={infoValue}>{value || "TBA"}</span>
+    </div>
+  );
+}
 
-const container = {
-  backgroundColor: "#0a0a0a",
-  margin: "0 auto",
-  padding: "40px",
-  borderRadius: "24px",
-  border: "1px solid #1a1a1a",
-  maxWidth: "600px",
-};
+function Footer() {
+  return (
+    <div style={footer}>
+      <p style={copyright}>Automated CodeKar admin notification.</p>
+    </div>
+  );
+}
 
-const header = {
-  textAlign: "center" as const,
-  marginBottom: "32px",
-};
-
-const badge = {
-  color: "#f59e0b",
-  fontSize: "12px",
-  fontWeight: "bold",
-  textTransform: "uppercase" as const,
-  letterSpacing: "2px",
-  margin: "0 0 8px 0",
-};
-
-const content = {
-  padding: "0 20px",
-};
-
-const h1 = {
-  color: "#ffffff",
-  fontSize: "24px",
-  fontWeight: "bold",
-  textAlign: "center" as const,
-  margin: "0",
-};
-
-const h3 = {
-  color: "#ffffff",
-  fontSize: "16px",
-  fontWeight: "bold",
-  margin: "0 0 16px 0",
-};
-
-const alertBox = {
-  backgroundColor: "rgba(245, 158, 11, 0.1)",
-  padding: "16px 20px",
-  borderRadius: "12px",
-  border: "1px solid rgba(245, 158, 11, 0.2)",
-  marginBottom: "24px",
-};
-
-const alertText = {
-  color: "#f59e0b",
-  fontSize: "14px",
-  lineHeight: "22px",
-  margin: "0",
-  textAlign: "center" as const,
-};
-
-const detailsBox = {
-  backgroundColor: "#111",
-  padding: "24px",
-  borderRadius: "16px",
-  border: "1px solid #1a1a1a",
-  marginBottom: "24px",
-};
-
-const tableStyle = {
-  width: "100%",
-  borderCollapse: "collapse" as const,
-};
-
-const labelCell = {
-  color: "#666",
-  fontSize: "13px",
-  padding: "8px 0",
-  width: "100px",
-  verticalAlign: "top" as const,
-};
-
-const valueCell = {
-  color: "#fff",
-  fontSize: "14px",
-  padding: "8px 0",
-  fontWeight: "500",
-};
-
-const ctaBox = {
-  textAlign: "center" as const,
-  marginBottom: "24px",
-};
-
-const ctaButton = {
-  backgroundColor: "#ffffff",
-  color: "#000000",
-  padding: "14px 32px",
-  borderRadius: "12px",
-  fontSize: "14px",
-  fontWeight: "bold",
-  textDecoration: "none",
-  display: "inline-block",
-};
-
-const smallText = {
-  color: "#666",
-  fontSize: "12px",
-  lineHeight: "20px",
-  textAlign: "center" as const,
-  margin: "0",
-};
-
-const hr = {
-  borderColor: "#1a1a1a",
-  margin: "40px 0 20px",
-};
-
-const footer = {
-  textAlign: "center" as const,
-};
-
-const footerText = {
-  color: "#444",
-  fontSize: "11px",
-  margin: "0",
-};
+const page = { margin: "0", padding: "32px 12px", backgroundColor: "#050505", fontFamily: "Arial, sans-serif" };
+const card = { maxWidth: "620px", margin: "0 auto", backgroundColor: "#0b0b0f", color: "#ffffff", borderRadius: "28px", overflow: "hidden", border: "1px solid #24243a" };
+const hero = { padding: "36px 32px", textAlign: "center" as const, background: "linear-gradient(135deg,#050505,#111827 45%,#3b0764)" };
+const logo = { width: "96px", height: "96px", objectFit: "contain" as const, borderRadius: "999px", backgroundColor: "#ffffff", marginBottom: "18px" };
+const eyebrow = { margin: "0 0 12px", fontSize: "12px", fontWeight: "bold", letterSpacing: "2px", textTransform: "uppercase" as const };
+const title = { margin: "0", color: "#ffffff", fontSize: "30px", lineHeight: "38px", fontWeight: "800" };
+const lead = { margin: "16px auto 0", maxWidth: "470px", color: "#d1d5db", fontSize: "16px", lineHeight: "25px" };
+const panel = { margin: "28px 28px 0", padding: "24px", backgroundColor: "#111118", border: "1px solid #24243a", borderRadius: "20px" };
+const ctaPanel = { margin: "18px 28px 0", padding: "28px 24px", textAlign: "center" as const, background: "linear-gradient(135deg,rgba(245,158,11,.12),rgba(244,114,182,.08))", border: "1px solid rgba(245,158,11,.22)", borderRadius: "20px" };
+const sectionTitle = { margin: "0 0 16px", color: "#ffffff", fontSize: "18px", lineHeight: "24px" };
+const infoRow = { display: "flex", justifyContent: "space-between", gap: "16px", padding: "12px 0", borderBottom: "1px solid #202233" };
+const infoLabel = { color: "#8b95a7", fontSize: "13px", fontWeight: "bold" };
+const infoValue = { color: "#ffffff", fontSize: "14px", textAlign: "right" as const };
+const primaryButton = { display: "inline-block", padding: "14px 22px", backgroundColor: "#ffffff", color: "#000000", borderRadius: "12px", textDecoration: "none", fontWeight: "bold", fontSize: "15px" };
+const copyText = { margin: "16px 0 0", color: "#8b95a7", fontSize: "12px", lineHeight: "18px" };
+const footer = { padding: "28px", textAlign: "center" as const };
+const copyright = { margin: "0", color: "#555b6b", fontSize: "11px" };

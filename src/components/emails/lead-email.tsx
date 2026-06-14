@@ -1,164 +1,54 @@
-import {
-  Body,
-  Container,
-  Head,
-  Heading,
-  Hr,
-  Html,
-  Img,
-  Link,
-  Preview,
-  Section,
-  Text,
-} from "@react-email/components";
-import * as React from "react";
-
 interface LeadEmailProps {
   subject: string;
   bodyContent: string;
 }
 
-export const LeadEmail = ({
-  subject,
-  bodyContent,
-}: LeadEmailProps) => (
-  <Html>
-    <Head>
-      <style>
-        {`
-          :root { color-scheme: dark; supported-color-schemes: dark; }
-          body { background-color: #000000 !important; }
-          .container { background-color: #0a0a0a !important; }
-          @media only screen and (max-width: 600px) {
-            .container {
-              width: 100% !important;
-              padding: 20px !important;
-              border-radius: 0 !important;
-            }
-          }
-        `}
-      </style>
-    </Head>
-    <Preview>{subject}</Preview>
-    <Body style={main}>
-      <Container style={container} className="container">
-        <Section style={header}>
-          <Img
-            src="https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/render/image/public/document-uploads/Codekar-1766840680469.png?width=400&height=400&resize=contain"
-            width="120"
-            height="auto"
-            alt="CodeKar"
-            style={logo}
-          />
-        </Section>
+export const LeadEmail = ({ subject, bodyContent }: LeadEmailProps) => {
+  const logoUrl =
+    "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/render/image/public/document-uploads/Codekar-1766840680469.png?width=400&height=400&resize=contain";
 
-        <Section style={content}>
-          <Heading style={h1}>{subject}</Heading>
-          
-          <Section style={messageBox}>
-            <div 
-              style={messageContent}
-              dangerouslySetInnerHTML={{ __html: bodyContent }}
-            />
-          </Section>
-        </Section>
+  return (
+    <div style={page}>
+      <div style={card}>
+        <div style={hero}>
+          <img src={logoUrl} alt="CodeKar" style={logo} />
+          <p style={eyebrow}>CodeKar update</p>
+          <h1 style={title}>{subject}</h1>
+        </div>
 
-        <Hr style={hr} />
+        <div style={panel}>
+          <div style={messageContent} dangerouslySetInnerHTML={{ __html: bodyContent }} />
+        </div>
 
-        <Section style={footer}>
-          <Text style={footerText}>
-            © 2025 CodeKar. All rights reserved.
-          </Text>
-          <div style={socialLinks}>
-            <Link href="https://wa.me/923390053713" style={socialLink}>WhatsApp</Link>
-            <span style={dot}>•</span>
-            <Link href="https://instagram.com/codekar_" style={socialLink}>Instagram</Link>
-          </div>
-        </Section>
-      </Container>
-    </Body>
-  </Html>
-);
+        <div style={ctaPanel}>
+          <a href="https://wa.me/923390053713" style={primaryButton}>Message CodeKar</a>
+          <a href="https://instagram.com/codekar_" style={secondaryButton}>Follow on Instagram</a>
+        </div>
 
-const main = {
-  backgroundColor: "#000000",
-  fontFamily:
-    '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Ubuntu,sans-serif',
-  padding: "40px 0",
+        <Footer />
+      </div>
+    </div>
+  );
 };
 
-const container = {
-  backgroundColor: "#0a0a0a",
-  margin: "0 auto",
-  padding: "40px",
-  borderRadius: "24px",
-  border: "1px solid #1a1a1a",
-  maxWidth: "600px",
-};
+function Footer() {
+  return (
+    <div style={footer}>
+      <p style={copyright}>© 2026 CodeKar. All rights reserved.</p>
+    </div>
+  );
+}
 
-const header = {
-  textAlign: "center" as const,
-  marginBottom: "32px",
-};
-
-const logo = {
-  margin: "0 auto 16px",
-  display: "block",
-};
-
-const content = {
-  padding: "0 20px",
-};
-
-const h1 = {
-  color: "#ffffff",
-  fontSize: "24px",
-  fontWeight: "bold",
-  textAlign: "center" as const,
-  margin: "0 0 24px 0",
-};
-
-const messageBox = {
-  backgroundColor: "#111",
-  padding: "24px",
-  borderRadius: "16px",
-  border: "1px solid #1a1a1a",
-  marginBottom: "24px",
-};
-
-const messageContent = {
-  color: "#bbbbbb",
-  fontSize: "16px",
-  lineHeight: "26px",
-};
-
-const hr = {
-  borderColor: "#1a1a1a",
-  margin: "40px 0 20px",
-};
-
-const footer = {
-  textAlign: "center" as const,
-};
-
-const footerText = {
-  color: "#444",
-  fontSize: "12px",
-  margin: "0 0 12px 0",
-};
-
-const socialLinks = {
-  marginBottom: "16px",
-};
-
-const socialLink = {
-  color: "#888",
-  fontSize: "13px",
-  textDecoration: "none",
-  margin: "0 8px",
-};
-
-const dot = {
-  color: "#222",
-  fontSize: "13px",
-};
+const page = { margin: "0", padding: "32px 12px", backgroundColor: "#050505", fontFamily: "Arial, sans-serif" };
+const card = { maxWidth: "620px", margin: "0 auto", backgroundColor: "#0b0b0f", color: "#ffffff", borderRadius: "28px", overflow: "hidden", border: "1px solid #24243a" };
+const hero = { padding: "36px 32px", textAlign: "center" as const, background: "linear-gradient(135deg,#050505,#111827 45%,#312e81)" };
+const logo = { width: "96px", height: "96px", objectFit: "contain" as const, borderRadius: "999px", backgroundColor: "#ffffff", marginBottom: "18px" };
+const eyebrow = { margin: "0 0 12px", color: "#93c5fd", fontSize: "12px", fontWeight: "bold", letterSpacing: "2px", textTransform: "uppercase" as const };
+const title = { margin: "0", color: "#ffffff", fontSize: "28px", lineHeight: "36px", fontWeight: "800" };
+const panel = { margin: "28px 28px 0", padding: "24px", backgroundColor: "#111118", border: "1px solid #24243a", borderRadius: "20px" };
+const messageContent = { color: "#c7cedd", fontSize: "15px", lineHeight: "24px" };
+const ctaPanel = { margin: "18px 28px 0", padding: "24px", textAlign: "center" as const, background: "linear-gradient(135deg,rgba(34,211,238,.10),rgba(244,114,182,.10))", border: "1px solid rgba(147,197,253,.22)", borderRadius: "20px" };
+const primaryButton = { display: "inline-block", margin: "0 10px 10px 0", padding: "13px 18px", backgroundColor: "#ffffff", color: "#000000", borderRadius: "12px", textDecoration: "none", fontWeight: "bold", fontSize: "14px" };
+const secondaryButton = { display: "inline-block", margin: "0 10px 10px 0", padding: "13px 18px", backgroundColor: "#d946ef", color: "#ffffff", borderRadius: "12px", textDecoration: "none", fontWeight: "bold", fontSize: "14px" };
+const footer = { padding: "28px", textAlign: "center" as const };
+const copyright = { margin: "0", color: "#555b6b", fontSize: "11px" };
