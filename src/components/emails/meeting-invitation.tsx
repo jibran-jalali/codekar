@@ -68,16 +68,16 @@ function Footer() {
 }
 
 const page = { margin: "0", padding: "32px 12px", backgroundColor: "#050505", fontFamily: "Arial, sans-serif" };
-const card = { maxWidth: "620px", margin: "0 auto", backgroundColor: "#0b0b0f", color: "#ffffff", borderRadius: "28px", overflow: "hidden", border: "1px solid #24243a" };
-const hero = { padding: "36px 32px", textAlign: "center" as const, background: "linear-gradient(135deg,#050505,#0f172a 45%,#164e63)" };
+const card = { maxWidth: "620px", margin: "0 auto", backgroundColor: "#0b0b0f", color: "#ffffff", borderRadius: "28px", overflow: "hidden", border: "1px solid #1f2937" };
+const hero = { padding: "36px 32px", textAlign: "center" as const, backgroundColor: "#050505" };
 const logo = { width: "96px", height: "96px", objectFit: "contain" as const, borderRadius: "999px", backgroundColor: "#ffffff", marginBottom: "18px" };
 const eyebrow = { margin: "0 0 12px", color: "#67e8f9", fontSize: "12px", fontWeight: "bold", letterSpacing: "2px", textTransform: "uppercase" as const };
 const title = { margin: "0", color: "#ffffff", fontSize: "30px", lineHeight: "38px", fontWeight: "800" };
 const lead = { margin: "16px auto 0", maxWidth: "470px", color: "#d1d5db", fontSize: "16px", lineHeight: "25px" };
 const strong = { color: "#ffffff" };
-const panel = { margin: "28px 28px 0", padding: "24px", backgroundColor: "#111118", border: "1px solid #24243a", borderRadius: "20px" };
-const ctaPanel = { margin: "18px 28px 0", padding: "28px 24px", textAlign: "center" as const, background: "linear-gradient(135deg,rgba(34,211,238,.12),rgba(79,70,229,.12))", border: "1px solid rgba(34,211,238,.24)", borderRadius: "20px" };
-const notePanel = { margin: "18px 28px 0", padding: "20px 24px", backgroundColor: "#0f1016", border: "1px solid #202233", borderRadius: "20px" };
+const panel = { margin: "28px 28px 0", padding: "24px", backgroundColor: "#111111", border: "1px solid #1f2937", borderRadius: "20px" };
+const ctaPanel = { margin: "18px 28px 0", padding: "28px 24px", textAlign: "center" as const, backgroundColor: "#111111", border: "1px solid #1f2937", borderRadius: "20px" };
+const notePanel = { margin: "18px 28px 0", padding: "20px 24px", backgroundColor: "#111111", border: "1px solid #1f2937", borderRadius: "20px" };
 const infoRow = { display: "flex", justifyContent: "space-between", gap: "16px", padding: "12px 0", borderBottom: "1px solid #202233" };
 const infoLabel = { color: "#8b95a7", fontSize: "13px", fontWeight: "bold" };
 const infoValue = { color: "#ffffff", fontSize: "14px", textAlign: "right" as const };
